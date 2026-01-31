@@ -101,6 +101,7 @@ export const translations = {
         recommendedSpots: "Recommended Spots",
         routes: "Routes",
         passes: "Passes",
+        rentedVehicles: "Rented Vehicles",
         keyContacts: "Key Contacts",
         specialtyLabel: "Specialty",
         languagesLabel: "Languages",
@@ -139,7 +140,9 @@ export const translations = {
         address: "Address",
         close: "Close",
         contactDetails: "Contact Information",
-        backToDetails: "Back to Details"
+        backToDetails: "Back to Details",
+        options: "Options",
+        calling: "Calling"
     },
     es: {
         appName: "TravelTales",
@@ -235,6 +238,7 @@ export const translations = {
         recommendedSpots: "Lugares Recomendados",
         routes: "Rutas",
         passes: "Pases",
+        rentedVehicles: "Vehículos de Alquiler",
         keyContacts: "Contactos Clave",
         specialtyLabel: "Especialidad",
         languagesLabel: "Idiomas",
@@ -272,7 +276,9 @@ export const translations = {
         address: "Dirección",
         close: "Cerrar",
         contactDetails: "Información de contacto",
-        backToDetails: "Volver a detalles"
+        backToDetails: "Volver a Detalles",
+        options: "Opciones",
+        calling: "Llamando a"
     },
     hi: {
         appName: "TravelTales",
@@ -368,6 +374,7 @@ export const translations = {
         recommendedSpots: "अनुशंसित स्थान",
         routes: "मार्ग",
         passes: "पास",
+        rentedVehicles: "किराये के वाहन",
         keyContacts: "महत्वपूर्ण संपर्क",
         specialtyLabel: "विशेषज्ञता",
         languagesLabel: "भाषाएं",
@@ -405,7 +412,9 @@ export const translations = {
         address: "पता",
         close: "बंद करें",
         contactDetails: "संपर्क जानकारी",
-        backToDetails: "विवरण पर वापस"
+        backToDetails: "विवरण पर वापस",
+        options: "विकल्प",
+        calling: "कॉल किया जा रहा है"
     },
     ru: {
         appName: "TravelTales",
@@ -501,6 +510,7 @@ export const translations = {
         recommendedSpots: "Рекомендуемые места",
         routes: "Маршруты",
         passes: "Проездные",
+        rentedVehicles: "Арендованные транспортные средства",
         keyContacts: "Важные контакты",
         specialtyLabel: "Специализация",
         languagesLabel: "Языки",
@@ -538,7 +548,9 @@ export const translations = {
         address: "Адрес",
         close: "Закрыть",
         contactDetails: "Контактная информация",
-        backToDetails: "Назад к описанию"
+        backToDetails: "Назад к описанию",
+        options: "Варианты",
+        calling: "Звоним"
     }
 };
 

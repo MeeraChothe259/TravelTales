@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Utensils, Bus, User, Star, Phone } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Utensils, Bus, User, Star, Phone, Car } from 'lucide-react';
 import { useLanguage } from './LanguageContext';
 import './LocalIntelligence.css';
 
 const LocalIntelligence = ({ data }) => {
     const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState('food');
+    const [selectedContact, setSelectedContact] = useState(null);
 
     if (!data) return null;
 
-    const showContact = (name) => {
-        // Dummy phone number generator based on name length to ensure it's "stable" for the demo
-        const dummyNum = `+1 555-${name.length.toString().padStart(3, '0')}-${Math.floor(Math.random() * 10000)}`;
-        alert(`📞 ${t('keyContacts')} ${name}:\n${dummyNum}`);
+    const handleContactClick = (name, type, manualContact = null) => {
+        const phone = manualContact || `+1 555-${name.length.toString().padStart(3, '0')}-${Math.floor(Math.random() * 9000 + 1000)}`;
+        setSelectedContact({ name, type, phone });
     };
 
     const renderFood = () => (
@@ -32,7 +32,7 @@ const LocalIntelligence = ({ data }) => {
                         <div className="flex justify-between items-start">
                             <strong>{rest.name}</strong>
                             <div className="flex gap-2">
-                                <button onClick={() => showContact(rest.name)} className="icon-btn-small" title={t('keyContacts')}>
+                                <button onClick={() => handleContactClick(rest.name, t('food'))} className="icon-btn-small" title={t('keyContacts')}>
                                     <Phone size={14} />
                                 </button>
                                 <span className="text-sm text-green-600 font-bold">{rest.price}</span>
@@ -65,9 +65,9 @@ const LocalIntelligence = ({ data }) => {
                 </div>
             </div>
             <h4 style={{ marginTop: '1.5rem', marginBottom: '0.5rem' }}>📞 {t('keyContacts')}</h4>
-            <div className="flex gap-4">
+            <div className="flex flex-wrap gap-2">
                 {data.transport.contacts.map(c => (
-                    <div key={c.name} className="contact-pill">
+                    <div key={c.name} className="contact-pill" onClick={() => handleContactClick(c.name, c.type, c.contact)} style={{ cursor: 'pointer' }}>
                         <Phone size={14} /> <strong>{c.type}:</strong> {c.name}
                     </div>
                 ))}
@@ -92,13 +92,47 @@ const LocalIntelligence = ({ data }) => {
                             <p className="text-xs text-grey mt-1">🗣️ {t('languagesLabel')}: {guide.languages.join(', ')}</p>
                         </div>
                         <div className="ml-auto flex gap-2">
-                            <button onClick={() => showContact(guide.name)} className="icon-btn-small" title={t('keyContacts')}>
+                            <button onClick={() => handleContactClick(guide.name, t('guides'))} className="icon-btn-small" title={t('keyContacts')}>
                                 <Phone size={16} className="text-blue-500" />
                             </button>
                         </div>
                     </div>
                 ))}
             </div>
+        </motion.div>
+    );
+
+    const renderRental = () => (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="intel-content">
+            <h4 style={{ marginBottom: '1rem' }}>🚗 {t('rentedVehicles')}</h4>
+            <div className="intel-grid">
+                {data.rental && data.rental.contacts && data.rental.contacts.map((contact, i) => (
+                    <div key={i} className="intel-card">
+                        <div className="flex justify-between items-start">
+                            <strong>{contact.name}</strong>
+                            <span className="text-secondary text-xs font-bold" style={{ color: 'var(--primary)' }}>{contact.type}</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-2">
+                            <Phone size={14} className="text-blue-500" />
+                            <span className="text-sm font-mono">{contact.contact || `+1 555-${contact.name.length}${Math.floor(Math.random() * 1000)}`}</span>
+                            <button onClick={() => handleContactClick(contact.name, contact.type, contact.contact)} className="icon-btn-small ml-auto" title={t('keyContacts')}>
+                                <Phone size={12} />
+                            </button>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {data.rental && data.rental.options && (
+                <>
+                    <h4 style={{ marginTop: '1.5rem', marginBottom: '1rem' }}>📋 {t('options')}</h4>
+                    <div className="flex flex-wrap gap-2">
+                        {data.rental.options.map(opt => (
+                            <span key={opt} className="chip badge-primary" style={{ opacity: 0.8 }}>{opt}</span>
+                        ))}
+                    </div>
+                </>
+            )}
         </motion.div>
     );
 
@@ -116,15 +150,49 @@ const LocalIntelligence = ({ data }) => {
                 <button className={`tab-btn ${activeTab === 'transport' ? 'active' : ''}`} onClick={() => setActiveTab('transport')}>
                     <Bus size={16} /> {t('transport')}
                 </button>
+                <button className={`tab-btn ${activeTab === 'rental' ? 'active' : ''}`} onClick={() => setActiveTab('rental')}>
+                    <Car size={16} /> {t('rental')}
+                </button>
                 <button className={`tab-btn ${activeTab === 'guides' ? 'active' : ''}`} onClick={() => setActiveTab('guides')}>
                     <User size={16} /> {t('guides')}
                 </button>
             </div>
 
-            <div className="intel-body" style={{ padding: '1.5rem' }}>
+            <div className="intel-body" style={{ padding: '1.5rem', position: 'relative' }}>
                 {activeTab === 'food' && renderFood()}
                 {activeTab === 'transport' && renderTransport()}
+                {activeTab === 'rental' && renderRental()}
                 {activeTab === 'guides' && renderGuides()}
+
+                <AnimatePresence>
+                    {selectedContact && (
+                        <motion.div
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: 20 }}
+                            className="contact-card-overlay"
+                        >
+                            <div className="contact-card-content">
+                                <div className="flex justify-between items-center mb-3">
+                                    <span className="badge-primary tag-xs">{selectedContact.type}</span>
+                                    <button onClick={() => setSelectedContact(null)} className="close-btn">&times;</button>
+                                </div>
+                                <h4 style={{ margin: '0 0 0.5rem 0' }}>{selectedContact.name}</h4>
+                                <div className="flex items-center gap-2 text-primary font-bold text-lg mb-4">
+                                    <Phone size={18} />
+                                    <a href={`tel:${selectedContact.phone}`} style={{ color: 'inherit', textDecoration: 'none' }}>
+                                        {selectedContact.phone}
+                                    </a>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button className="btn btn-primary btn-sm flex-1" onClick={() => alert(`${t('calling')} ${selectedContact.name}...`)}>
+                                        {t('contactNow')}
+                                    </button>
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
     );

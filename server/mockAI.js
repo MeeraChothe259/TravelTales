@@ -175,6 +175,13 @@ const generateMockPlan = (data) => {
             passes: ['Day Pass ($8)', '3-Day Tourist Card ($20)'],
             contacts: [{ type: 'Taxi', name: 'City Cab', contact: '+1 234 567 890' }]
         },
+        rental: {
+            contacts: [
+                { type: 'Car Rental', name: 'Elite Drive', contact: '+1 555-010-9999' },
+                { type: 'Bike Hire', name: 'EcoWheels', contact: '+1 555-010-8888' }
+            ],
+            options: ['Compact', 'Luxury', 'E-Bikes']
+        },
         guides: [
             { name: 'Kenji Sato', languages: ['English', 'Japanese'], rating: 4.9, specialty: 'History & Culture' }
         ]
