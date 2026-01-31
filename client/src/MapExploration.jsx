@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { Utensils, Bus, Car, Stethoscope, MapPin } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { MapContainer, TileLayer, Marker, Popup, useMap, ScaleControl } from 'react-leaflet';
+import { Utensils, Bus, Car, Stethoscope, MapPin, Globe, Map, ExternalLink, Phone, Clock } from 'lucide-react';
 import { useLanguage } from './LanguageContext';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -19,7 +20,9 @@ L.Marker.prototype.options.icon = DefaultIcon;
 
 const MapExploration = ({ plan }) => {
     const { t } = useLanguage();
-    const [mapCenter, setMapCenter] = useState([35.6762, 139.6503]); // Default to Tokyo
+    // Use coordinates from plan if available, otherwise default to Tokyo
+    const initialCenter = plan?.coordinates || [35.6762, 139.6503];
+    const [mapCenter, setMapCenter] = useState(initialCenter);
     const [isSearching, setIsSearching] = useState(false);
 
     const [activeLayers, setActiveLayers] = useState({
@@ -30,7 +33,10 @@ const MapExploration = ({ plan }) => {
         emergency: false
     });
 
+    const [mapStyle, setMapStyle] = useState('voyager'); // 'voyager' or 'satellite'
+
     const [markers, setMarkers] = useState([]);
+    const [isLoadingPOIs, setIsLoadingPOIs] = useState(false);
 
     // Custom Icons Helper
     const createCustomIcon = (icon) => {
@@ -67,9 +73,14 @@ const MapExploration = ({ plan }) => {
         if (!plan?.destination) return;
 
         const geocode = async () => {
+            // Only geocode if we DON'T have coordinates in the plan or if it's a different destination
+            if (plan.coordinates) {
+                setMapCenter(plan.coordinates);
+                return;
+            }
             setIsSearching(true);
             try {
-                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(plan.destination)}&limit=1`);
+                const response = await fetch(`http://localhost:5000/api/geocode?q=${encodeURIComponent(plan.destination)}`);
                 const data = await response.json();
                 if (data && data.length > 0) {
                     const { lat, lon } = data[0];
@@ -89,102 +100,92 @@ const MapExploration = ({ plan }) => {
     const RecenterMap = ({ center }) => {
         const map = useMap();
         useEffect(() => {
-            map.setView(center, 13);
+            map.setView(center, 14); // Deeper zoom for detail
         }, [center, map]);
         return null;
     };
 
+    // --- REAL-TIME POI FETCHING (Overpass API) ---
     useEffect(() => {
-        // Generate mock markers based on plan activities + extra categories
-        const newMarkers = [];
+        if (isSearching) return; // Wait for geocoding to settle
 
-        // 1. Places (from Itinerary)
-        if (plan && plan.itinerary) {
-            plan.itinerary.forEach((day, dIdx) => {
-                const dayActivities = [day.morning, day.afternoon, day.evening].filter(Boolean);
-                dayActivities.forEach((act, aIdx) => {
-                    newMarkers.push({
-                        id: `act-${dIdx}-${aIdx}`,
-                        type: 'places',
-                        position: [mapCenter[0] + (Math.random() - 0.5) * 0.05, mapCenter[1] + (Math.random() - 0.5) * 0.05],
-                        title: act.title,
-                        desc: `${act.time} • ${act.type}`
-                    });
+        const fetchPOIs = async () => {
+            setIsLoadingPOIs(true);
+            const lat = mapCenter[0];
+            const lon = mapCenter[1];
+            const range = 0.02; // Roughly 2km radius
+
+            // OSM Query for multiple categories
+            // [out:json]; node(around:2000, lat, lon)[amenity~"restaurant|cafe|bus_station..."];
+            const query = `
+                [out:json][timeout:25];
+                (
+                  node["amenity"~"restaurant|cafe|fast_food|bar"](around:2000,${lat},${lon});
+                  node["amenity"~"bus_station|railway_station|subway_station|tram_stop"](around:2000,${lat},${lon});
+                  node["amenity"~"car_rental|bicycle_rental"](around:3000,${lat},${lon});
+                  node["amenity"~"hospital|pharmacy|police"](around:4000,${lat},${lon});
+                  node["tourism"~"attraction|museum|viewpoint|artwork"](around:3000,${lat},${lon});
+                );
+                out body;
+            `;
+
+            try {
+                const response = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`);
+                const data = await response.json();
+
+                const newMarkers = data.elements.map(el => {
+                    let type = 'places';
+                    if (el.tags.amenity) {
+                        if (["restaurant", "cafe", "fast_food", "bar"].includes(el.tags.amenity)) type = 'food';
+                        else if (["bus_station", "railway_station", "subway_station", "tram_stop"].includes(el.tags.amenity)) type = 'transport';
+                        else if (["car_rental", "bicycle_rental"].includes(el.tags.amenity)) type = 'rental';
+                        else if (["hospital", "pharmacy", "police"].includes(el.tags.amenity)) type = 'emergency';
+                    } else if (el.tags.tourism) {
+                        type = 'places';
+                    }
+
+                    return {
+                        id: el.id,
+                        type: type,
+                        position: [el.lat, el.lon],
+                        title: el.tags.name || "Unnamed Spot",
+                        desc: el.tags.cuisine ? `${el.tags.cuisine} Cuisine` : (el.tags.amenity || el.tags.tourism || ""),
+                        website: el.tags.website,
+                        phone: el.tags.phone || el.tags['contact:phone'],
+                        hours: el.tags.opening_hours
+                    };
                 });
-            });
-        }
 
-        // 2. Food Spots
-        const foodSpots = [
-            { name: "Saffron & Spice", desc: "Authentic Local Cuisine • 4.9 ⭐" },
-            { name: "The Blue Terrace", desc: "Fine Dining with View • $$$" },
-            { name: "Urban Bistro", desc: "Cozy Brunch & Coffee • $$" },
-            { name: "Spicy Street Kitchen", desc: "Famous Night Market Spot • $" },
-            { name: "Velvet Lounge", desc: "Cocktails & Tapas • Late Night" }
-        ];
-        foodSpots.forEach((spot, i) => {
-            newMarkers.push({
-                id: `food-${i}`,
-                type: 'food',
-                position: [mapCenter[0] + (Math.random() - 0.5) * 0.04, mapCenter[1] + (Math.random() - 0.5) * 0.04],
-                title: spot.name,
-                desc: spot.desc
-            });
-        });
+                // Add Itinerary Items from Plan
+                const planMarkers = [];
+                if (plan && plan.itinerary) {
+                    plan.itinerary.forEach((day, dIdx) => {
+                        const dayActivities = [day.morning, day.afternoon, day.evening].filter(Boolean);
+                        dayActivities.forEach((act, aIdx) => {
+                            // Since we don't have exact lat/lon for itinerary items yet, 
+                            // we place them in a small cluster around the center
+                            planMarkers.push({
+                                id: `plan-${dIdx}-${aIdx}`,
+                                type: 'places',
+                                position: [mapCenter[0] + (Math.random() - 0.5) * 0.01, mapCenter[1] + (Math.random() - 0.5) * 0.01],
+                                title: `⭐ ${act.title}`,
+                                desc: `${t('day')} ${day.day} • ${act.time}`
+                            });
+                        });
+                    });
+                }
 
-        // 3. Transport (Public)
-        const transportHubs = [
-            { name: "Grand Central Plaza", desc: "Main Railway & Metro Hub" },
-            { name: "West Gate Bus Terminal", desc: "Intercity Express Services" },
-            { name: "Waterfront Ferry Pier", desc: "Scenic River Transport" },
-            { name: "Old Town Tram Stop", desc: "Heritage Transit Line" }
-        ];
-        transportHubs.forEach((hub, i) => {
-            newMarkers.push({
-                id: `trans-${i}`,
-                type: 'transport',
-                position: [mapCenter[0] + (Math.random() - 0.5) * 0.06, mapCenter[1] + (Math.random() - 0.5) * 0.06],
-                title: hub.name,
-                desc: hub.desc
-            });
-        });
+                setMarkers([...planMarkers, ...newMarkers]);
+            } catch (error) {
+                console.error("Overpass API error:", error);
+            } finally {
+                setIsLoadingPOIs(false);
+            }
+        };
 
-        // 4. Rental / Private Transport
-        const rentalAgencies = [
-            { name: "Velocity Bike Rentals", desc: "Daily & Hourly Rates" },
-            { name: "Prime Auto Hire", desc: "Sedans, SUVs & EVs" },
-            { name: "Swift E-Scooters", desc: "App-based unlock" },
-            { name: "Luxury Chauffeur Service", desc: "Private Airport Transfers" }
-        ];
-        rentalAgencies.forEach((agency, i) => {
-            newMarkers.push({
-                id: `rental-${i}`,
-                type: 'rental',
-                position: [mapCenter[0] + (Math.random() - 0.5) * 0.03, mapCenter[1] + (Math.random() - 0.5) * 0.03],
-                title: agency.name,
-                desc: agency.desc
-            });
-        });
-
-        // 5. Emergency Services
-        const emergencyFacilities = [
-            { name: "St. Jude General Hospital", desc: "24/7 Trauma & Emergency Center" },
-            { name: "Central Police Precinct", desc: "Tourist Assistance Desk" },
-            { name: "Lifeline late-night Pharmacy", desc: "Open 24 Hours" },
-            { name: "Metropolitan Fire Station", desc: "Response Unit" }
-        ];
-        emergencyFacilities.forEach((facility, i) => {
-            newMarkers.push({
-                id: `emerg-${i}`,
-                type: 'emergency',
-                position: [mapCenter[0] + (Math.random() - 0.5) * 0.08, mapCenter[1] + (Math.random() - 0.5) * 0.08],
-                title: facility.name,
-                desc: facility.desc
-            });
-        });
-
-        setMarkers(newMarkers);
-    }, [plan, mapCenter]);
+        const timeoutId = setTimeout(fetchPOIs, 800); // Debounce
+        return () => clearTimeout(timeoutId);
+    }, [mapCenter, isSearching, plan]);
 
     const toggleLayer = (layer) => {
         setActiveLayers(prev => ({ ...prev, [layer]: !prev[layer] }));
@@ -208,12 +209,28 @@ const MapExploration = ({ plan }) => {
             </div>
 
             <div style={{ flex: 1, position: 'relative' }}>
-                <MapContainer center={mapCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
+                <MapContainer center={mapCenter} zoom={14} style={{ height: '100%', width: '100%' }}>
                     <RecenterMap center={mapCenter} />
-                    <TileLayer
-                        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                    />
+                    <ScaleControl position="bottomleft" />
+
+                    {mapStyle === 'voyager' ? (
+                        <TileLayer
+                            url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                        />
+                    ) : (
+                        <TileLayer
+                            url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                            attribution='Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+                        />
+                    )}
+
+                    {mapStyle === 'satellite' && (
+                        <TileLayer
+                            url="https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png"
+                            attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
+                        />
+                    )}
                     {visibleMarkers.map(marker => (
                         <Marker
                             key={marker.id}
@@ -221,16 +238,68 @@ const MapExploration = ({ plan }) => {
                             icon={icons[marker.type] || DefaultIcon}
                         >
                             <Popup>
-                                <strong>{marker.title}</strong><br />
-                                {marker.desc}
+                                <div style={{ minWidth: '180px' }}>
+                                    <strong style={{ fontSize: '1rem', display: 'block', marginBottom: '0.25rem' }}>{marker.title}</strong>
+                                    <p style={{ margin: '0 0 0.5rem 0', color: 'var(--text-muted)', fontSize: '0.85rem' }}>{marker.desc}</p>
+
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem', borderTop: '1px solid #eee', paddingTop: '0.5rem' }}>
+                                        {marker.hours && (
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem' }}>
+                                                <Clock size={12} color="var(--primary)" />
+                                                <span>{marker.hours}</span>
+                                            </div>
+                                        )}
+                                        {marker.phone && (
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem' }}>
+                                                <Phone size={12} color="#10B981" />
+                                                <a href={`tel:${marker.phone}`} style={{ textDecoration: 'none', color: 'inherit' }}>{marker.phone}</a>
+                                            </div>
+                                        )}
+                                        {marker.website && (
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', fontSize: '0.75rem' }}>
+                                                <Globe size={12} color="#3B82F6" />
+                                                <a href={marker.website} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: '#3B82F6', fontWeight: 'bold' }}>
+                                                    Website <ExternalLink size={10} />
+                                                </a>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </Popup>
                         </Marker>
                     ))}
                 </MapContainer>
 
+                {/* Floating Map Controls */}
+                <div style={{ position: 'absolute', top: '1rem', left: '1rem', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    <button
+                        onClick={() => setMapStyle(mapStyle === 'voyager' ? 'satellite' : 'voyager')}
+                        style={{
+                            background: 'white',
+                            border: 'none',
+                            width: '40px',
+                            height: '40px',
+                            borderRadius: '8px',
+                            boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            color: 'var(--primary)',
+                            transition: 'all 0.2s'
+                        }}
+                        title="Toggle Detailed View"
+                    >
+                        {mapStyle === 'voyager' ? <Globe size={20} /> : <Map size={20} />}
+                    </button>
+                </div>
+
                 {/* 3D Overlay Hint (Visual Touch) */}
-                <div style={{ position: 'absolute', bottom: '1rem', right: '1rem', zIndex: 1000, background: 'rgba(255,255,255,0.9)', padding: '0.5rem 1rem', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
-                    🗺️ {t('interactiveMap')}
+                <div style={{ position: 'absolute', bottom: '1rem', right: '1rem', zIndex: 1000, background: 'rgba(255,255,255,0.9)', padding: '0.5rem 1rem', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', gap: '0.5rem', backdropFilter: 'blur(4px)' }}>
+                    {isLoadingPOIs ? (
+                        <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>⏳</motion.div>
+                    ) : (mapStyle === 'satellite' ? '🛰️' : '🗺️')}
+                    {isLoadingPOIs ? 'Loading Detailed POIs...' : (mapStyle === 'satellite' ? 'Satellite View' : t('interactiveMap'))}
                 </div>
             </div>
         </div>

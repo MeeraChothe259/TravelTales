@@ -4,14 +4,14 @@ const cors = require('cors');
 const { generateMockPlan, handleChatResponse } = require('./mockAI');
 
 const app = express();
-const PORT = 5005;
+const PORT = 5000;
 
 app.use(cors());
 app.use(express.json());
 
 // Health Check
 app.get('/', (req, res) => {
-    res.send('TravelTales API is running!');
+    res.send('TravelTales API v2 is running!');
 });
 
 // Routes
@@ -25,6 +25,32 @@ app.post('/api/chat', async (req, res) => {
     } catch (error) {
         console.error("Chat Error:", error);
         res.status(500).json({ success: false, message: "AI Assistant is resting..." });
+    }
+});
+
+app.get('/api/geocode', async (req, res) => {
+    try {
+        const { q } = req.query;
+        if (!q) return res.status(400).json({ error: "Query parameter 'q' is missing" });
+
+        console.log("Geocoding Request for:", q);
+
+        // Using built-in fetch (Node 18+) or a fallback
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`, {
+            headers: {
+                'User-Agent': 'TravelTales/1.0 (contact: support@traveltales.ai)'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Nominatim error: ${response.status} ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        res.json(data);
+    } catch (error) {
+        console.error("Geocoding Error:", error);
+        res.status(500).json({ success: false, message: "Geocoding failed", details: error.message });
     }
 });
 

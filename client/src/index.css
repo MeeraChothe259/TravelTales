@@ -704,8 +704,6 @@ input[type=range]::-webkit-slider-runnable-track {
   background: #E11D48;
 }
 
-<<<<<<< HEAD
-=======
 /* --- SMART BUDGET MANAGER --- */
 .budget-manager-container {
   overflow: hidden;
@@ -774,7 +772,6 @@ input[type=range]::-webkit-slider-runnable-track {
   }
 }
 
->>>>>>> 7b1421a5fbcb9e3856f7277895f3fd4c814a33c1
 /* --- Print Styles --- */
 /* --- Chatbot Pulse & Animations --- */
 @keyframes ai-pulse {
@@ -809,12 +806,8 @@ input[type=range]::-webkit-slider-runnable-track {
   .sidebar,
   .trip-header button,
   .modal-overlay,
-<<<<<<< HEAD
   .regret-box,
   .chatbot-wrapper {
-=======
-  .regret-box {
->>>>>>> 7b1421a5fbcb9e3856f7277895f3fd4c814a33c1
     display: none !important;
   }
 

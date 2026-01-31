@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -21,6 +21,8 @@ const Onboarding = () => {
         safety: [],
         travelerCount: 1
     });
+
+
 
     const languages = [
         { code: 'en', name: 'English' },
@@ -58,7 +60,7 @@ const Onboarding = () => {
 
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:5005/api/generate-plan', {
+            const response = await fetch('http://localhost:5000/api/generate-plan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...formData, language })
