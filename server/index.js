@@ -3,7 +3,7 @@ const cors = require('cors');
 const { generateMockPlan } = require('./mockAI');
 
 const app = express();
-const PORT = 5000;
+const PORT = 5005;
 
 app.use(cors());
 app.use(express.json());
@@ -32,6 +32,15 @@ app.post('/api/generate-plan', (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+});
+
+server.on('error', (err) => {
+    console.error("SERVER ERROR:", err);
+});
+
+// Keeping the process alive explicitly if needed (though listen should do it)
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
 });

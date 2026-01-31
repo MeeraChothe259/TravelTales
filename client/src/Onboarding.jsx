@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from './LanguageContext';
 
 const Onboarding = () => {
     const navigate = useNavigate();
+    const { t, language } = useLanguage();
     const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         destination: '',
@@ -18,6 +20,19 @@ const Onboarding = () => {
         constraints: [],
         safety: []
     });
+
+    const languages = [
+        { code: 'en', name: 'English' },
+        { code: 'es', name: 'Español' },
+        { code: 'fr', name: 'Français' },
+        { code: 'zh', name: '中文' },
+        { code: 'ar', name: 'العربية' },
+        { code: 'hi', name: 'हिन्दी' },
+        { code: 'de', name: 'Deutsch' },
+        { code: 'pt', name: 'Português' },
+        { code: 'ja', name: '日本語' },
+        { code: 'ru', name: 'Русский' }
+    ];
 
     const handleInputChange = (field, value) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -36,16 +51,16 @@ const Onboarding = () => {
 
     const handleGenerate = async () => {
         if (!formData.destination || !formData.startDate || !formData.endDate) {
-            alert("Please fill in the basics (Destination & Dates)!");
+            alert(t('fillBasicsAlert'));
             return;
         }
 
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:5000/api/generate-plan', {
+            const response = await fetch('http://localhost:5005/api/generate-plan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData)
+                body: JSON.stringify({ ...formData, language })
             });
 
             const data = await response.json();
@@ -66,16 +81,16 @@ const Onboarding = () => {
     return (
         <div className="onboarding-container">
             <header className="text-center" style={{ marginBottom: '3rem' }}>
-                <h2>Let's Plan Your Trip ✈️</h2>
-                <p>Tell us a bit about your travel plans so AI can work its magic.</p>
+                <h2>{t('letPlanTrip')}</h2>
+                <p>{t('onboardingSub')}</p>
             </header>
 
             <div className="input-container">
                 {/* Card 1: Destination */}
-                <InputCard number="1" title="Where to?" subtitle="City, Region, or Country">
+                <InputCard number="1" title={t('whereTo')} subtitle={t('whereToSub')}>
                     <input
                         type="text"
-                        placeholder="e.g., Kyoto, Japan"
+                        placeholder={t('destPlaceholder')}
                         className="input-field"
                         value={formData.destination}
                         onChange={(e) => handleInputChange('destination', e.target.value)}
@@ -83,10 +98,10 @@ const Onboarding = () => {
                 </InputCard>
 
                 {/* Card 2: Dates */}
-                <InputCard number="2" title="When are you going?" subtitle="We'll check for weekends & festivals.">
+                <InputCard number="2" title={t('whenGoing')} subtitle={t('whenGoingSub')}>
                     <div className="flex gap-4" style={{ flexDirection: 'column' }}>
                         <div className="w-full">
-                            <label style={{ fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'block', color: 'var(--text-light)' }}>Start Date</label>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'block', color: 'var(--text-light)' }}>{t('startDate')}</label>
                             <input
                                 type="date"
                                 className="input-field"
@@ -95,7 +110,7 @@ const Onboarding = () => {
                             />
                         </div>
                         <div className="w-full">
-                            <label style={{ fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'block', color: 'var(--text-light)' }}>End Date</label>
+                            <label style={{ fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'block', color: 'var(--text-light)' }}>{t('endDate')}</label>
                             <input
                                 type="date"
                                 className="input-field"
@@ -107,7 +122,7 @@ const Onboarding = () => {
                 </InputCard>
 
                 {/* Card 3: Partners */}
-                <InputCard number="3" title="Who's coming with you?" subtitle="Helps suggest activities.">
+                <InputCard number="3" title={t('whoComing')} subtitle={t('whoComingSub')}>
                     <div className="selection-grid">
                         {['Solo', 'Couple', 'Friends', 'Family', 'Seniors', 'Girls Trip'].map(type => (
                             <SelectableCard
@@ -121,7 +136,7 @@ const Onboarding = () => {
                 </InputCard>
 
                 {/* Card 4: Mood */}
-                <InputCard number="4" title="What's the vibe?" subtitle="Personalize your style.">
+                <InputCard number="4" title={t('vibe')} subtitle={t('vibeSub')}>
                     <div className="selection-grid">
                         {[
                             { label: 'Chill 😌', value: 'chill' },
@@ -141,7 +156,7 @@ const Onboarding = () => {
                 </InputCard>
 
                 {/* Card 5: Budget */}
-                <InputCard number="5" title="Budget Preference" subtitle="Saving or Splurging?">
+                <InputCard number="5" title={t('budgetPref')} subtitle={t('budgetSub')}>
                     <div style={{ padding: '0 1rem' }}>
                         <input
                             type="range"
@@ -152,15 +167,15 @@ const Onboarding = () => {
                             onChange={(e) => handleInputChange('budget', parseInt(e.target.value))}
                         />
                         <div className="flex justify-between" style={{ marginTop: '1rem', fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>
-                            <span style={{ color: formData.budget === 1 ? 'var(--primary)' : '' }}>$ Low</span>
-                            <span style={{ color: formData.budget === 2 ? 'var(--primary)' : '' }}>$$ Medium</span>
-                            <span style={{ color: formData.budget === 3 ? 'var(--primary)' : '' }}>$$$ Premium</span>
+                            <span style={{ color: formData.budget === 1 ? 'var(--primary)' : '' }}>$ {t('low')}</span>
+                            <span style={{ color: formData.budget === 2 ? 'var(--primary)' : '' }}>$$ {t('medium')}</span>
+                            <span style={{ color: formData.budget === 3 ? 'var(--primary)' : '' }}>$$$ {t('premium')}</span>
                         </div>
                     </div>
                 </InputCard>
 
                 {/* Card 6: Interests */}
-                <InputCard number="6" title="Interests" subtitle="Select all that apply.">
+                <InputCard number="6" title={t('interests')} subtitle={t('interestsSub')}>
                     <div className="flex" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
                         {['Foodie 🍜', 'Shopping 🛍️', 'Nature 🌿', 'History 🏛️', 'Nightlife 🌃', 'Photography 📸', 'Art 🎨', 'Hidden Gems 💎'].map(pref => (
                             <FilterChip
@@ -174,7 +189,7 @@ const Onboarding = () => {
                 </InputCard>
 
                 {/* Card 7: Constraints */}
-                <InputCard number="7" title="Constraints" subtitle="Any limitations?">
+                <InputCard number="7" title={t('constraints')} subtitle={t('constraintsSub')}>
                     <div className="flex flex-col gap-2">
                         {['Limited Walking', 'No Early Mornings', 'Avoid Crowds', 'Dietary Restrictions'].map(item => (
                             <CheckboxItem
@@ -188,19 +203,9 @@ const Onboarding = () => {
                 </InputCard>
 
                 {/* Card 8: Safety & Comfort */}
-<<<<<<< HEAD
-                <InputCard number="8" title="Safety & Comfort" subtitle="Optional but Powerful preferences.">
-                    <div className="flex flex-col gap-2">
-                        {[
-                            'Prefer safe areas only',
-                            'Women-friendly places',
-                            'Emergency contacts needed'
-                        ].map(item => (
-=======
-                <InputCard number="8" title="Safety & Comfort (Optional but Powerful)" subtitle="Your well-being matters.">
+                <InputCard number="8" title={t('safetyComfort')} subtitle={t('safetyComfortSub')}>
                     <div className="flex flex-col gap-2">
                         {['Prefer safe areas only', 'Women-friendly places', 'Emergency contacts needed'].map(item => (
->>>>>>> 632e7e0839e54373d54c1f10184d36216076e3be
                             <CheckboxItem
                                 key={item}
                                 label={item}
@@ -220,10 +225,10 @@ const Onboarding = () => {
                     >
                         {isLoading ? (
                             <>
-                                <Loader2 className="animate-spin" size={20} /> Generating...
+                                <Loader2 className="animate-spin" size={20} /> {t('generating')}
                             </>
                         ) : (
-                            '✨ Generate My Plan'
+                            `✨ ${t('generatePlan')}`
                         )}
                     </button>
                 </div>
@@ -282,3 +287,4 @@ const CheckboxItem = ({ label, checked, onChange }) => (
 );
 
 export default Onboarding;
+

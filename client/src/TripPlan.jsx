@@ -8,27 +8,33 @@ import {
 
 import MapExploration from './MapExploration';
 import LocalIntelligence from './LocalIntelligence';
+import BudgetManager from './BudgetManager';
+import { useLanguage } from './LanguageContext';
 
 const TripPlan = () => {
     const location = useLocation();
     const navigate = useNavigate();
-<<<<<<< HEAD
+    const { t, language } = useLanguage();
     const { plan } = location.state || {};
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [isSaved, setIsSaved] = useState(false);
 
-    const handleSave = () => {
-        // 1. Save to LocalStorage for persistence in "My Trips" (future feature)
-        const savedTrips = JSON.parse(localStorage.getItem('travelTales_trips') || '[]');
-        const updatedTrips = [plan, ...savedTrips.filter(t => t.tripName !== plan.tripName)];
-        localStorage.setItem('travelTales_trips', JSON.stringify(updatedTrips));
+    const languages = [
+        { code: 'en', name: 'English' },
+        { code: 'es', name: 'Español' },
+        { code: 'fr', name: 'Français' },
+        { code: 'zh', name: '中文' },
+        { code: 'ar', name: 'العربية' },
+        { code: 'hi', name: 'हिन्दी' },
+        { code: 'de', name: 'Deutsch' },
+        { code: 'pt', name: 'Português' },
+        { code: 'ja', name: '日本語' },
+        { code: 'ru', name: 'Русский' }
+    ];
 
-        // 2. Visual Feedback
+    const handleSave = () => {
         setIsSaved(true);
         setTimeout(() => setIsSaved(false), 3000);
-
-        // 3. Trigger Print (which allows saving as PDF)
-        // We'll wait a bit for the "Saved!" text to appear or just do it immediately
         window.print();
     };
 
@@ -42,21 +48,17 @@ const TripPlan = () => {
             });
         } else {
             navigator.clipboard.writeText(`${text} ${window.location.href}`);
-            alert("Link copied to clipboard!");
+            alert(t('copyAlert'));
         }
     };
-=======
-    const { plan } = location.state || {}; // plan now includes localIntelligence
->>>>>>> 632e7e0839e54373d54c1f10184d36216076e3be
 
     if (!plan) {
-
         return (
             <div className="flex justify-center items-center" style={{ minHeight: '100vh', background: 'var(--bg-body)' }}>
                 <div className="text-center">
-                    <h2>No Plan Found</h2>
+                    <h2>{t('noPlanFound')}</h2>
                     <button onClick={() => navigate('/plan')} className="btn btn-primary" style={{ marginTop: '1rem' }}>
-                        Start Planning
+                        {t('startPlanning')}
                     </button>
                 </div>
             </div>
@@ -64,7 +66,7 @@ const TripPlan = () => {
     }
 
     return (
-        <div style={{ minHeight: '100vh', paddingBottom: '5rem', background: '#F8FAFC' }}>
+        <div style={{ minHeight: '100vh', paddingBottom: '5rem', background: '#F8FAFC', paddingTop: '80px' }}>
             {/* Header Image */}
             <div className="trip-header" style={{
                 height: '350px',
@@ -80,7 +82,7 @@ const TripPlan = () => {
                     <button
                         onClick={() => navigate('/plan')}
                         style={{
-                            position: 'absolute', top: '-200px', left: '0',
+                            position: 'absolute', top: '-130px', left: '0',
                             background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(5px)',
                             border: 'none', borderRadius: '50%', width: '40px', height: '40px',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -93,7 +95,7 @@ const TripPlan = () => {
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
                         <div className="flex gap-2" style={{ marginBottom: '1rem' }}>
                             <span style={{ background: 'var(--primary)', padding: '0.2rem 0.8rem', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase' }}>
-                                {plan.vibe} Trip
+                                {plan.vibe} {t('tripVibe')}
                             </span>
                             <span style={{ background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(5px)', padding: '0.2rem 0.8rem', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 'bold' }}>
                                 {plan.dates}
@@ -101,7 +103,7 @@ const TripPlan = () => {
                         </div>
                         <h1 style={{ color: 'white', marginBottom: '0.5rem', fontSize: '4rem' }}>{plan.destination}</h1>
                         <p style={{ fontSize: '1.2rem', opacity: 0.9 }}>
-                            Your personalized {plan.travelers} adventure. Est. Budget: <span style={{ color: '#86EFAC', fontWeight: 'bold' }}>${plan.budgetSummary.total} Total</span>
+                            Your personalized {plan.travelers} adventure. Est. Budget: <span style={{ color: '#86EFAC', fontWeight: 'bold' }}>${plan.budgetSummary.total} {t('total')}</span>
                         </p>
                     </motion.div>
                 </div>
@@ -133,7 +135,7 @@ const TripPlan = () => {
                                 {/* Day Header */}
                                 <div className="day-header">
                                     <div>
-                                        <h3 style={{ margin: 0 }}>Day {day.day}</h3>
+                                        <h3 style={{ margin: 0 }}>{t('day')} {day.day}</h3>
                                         <p style={{ margin: 0, fontSize: '0.9rem' }}>{day.date}</p>
                                     </div>
                                     <div className="chip" style={{ background: 'white', fontSize: '0.85rem' }}>
@@ -143,9 +145,9 @@ const TripPlan = () => {
 
                                 {/* Timeline Grid */}
                                 <div className="timeline-grid">
-                                    <ActivitySlot label="Morning 🌅" data={day.morning} onSelect={setSelectedActivity} />
-                                    <ActivitySlot label="Afternoon ☀️" data={day.afternoon} onSelect={setSelectedActivity} />
-                                    <ActivitySlot label="Evening 🌙" data={day.evening} onSelect={setSelectedActivity} />
+                                    <ActivitySlot label={t('morning')} data={day.morning} onSelect={setSelectedActivity} t={t} />
+                                    <ActivitySlot label={t('afternoon')} data={day.afternoon} onSelect={setSelectedActivity} t={t} />
+                                    <ActivitySlot label={t('evening')} data={day.evening} onSelect={setSelectedActivity} t={t} />
                                 </div>
                             </motion.div>
                         ))}
@@ -153,31 +155,14 @@ const TripPlan = () => {
 
                     {/* Sidebar */}
                     <div className="sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                        {/* Budget Card */}
-                        <motion.div className="card" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                            <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                <DollarSign size={20} color="var(--success)" /> Budget
-                            </h3>
-                            <div style={{ marginTop: '1rem', display: 'flex', flexDirection: 'column', gap: '0.8rem' }}>
-                                <div className="flex justify-between" style={{ fontSize: '0.9rem' }}>
-                                    <span>Tier</span>
-                                    <strong>{plan.budgetSummary.level}</strong>
-                                </div>
-                                <div className="flex justify-between" style={{ fontSize: '0.9rem' }}>
-                                    <span>Per Person</span>
-                                    <strong>${plan.budgetSummary.perPerson}</strong>
-                                </div>
-                                <hr style={{ border: 'none', borderTop: '1px solid var(--border-light)' }} />
-                                <div className="flex justify-between" style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>
-                                    <span>Total</span>
-                                    <span style={{ color: 'var(--success)' }}>${plan.budgetSummary.total}</span>
-                                </div>
-                            </div>
+                        {/* 💰 Smart Budget Manager */}
+                        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                            <BudgetManager details={plan.budgetDetails} />
                         </motion.div>
 
                         {/* Highlights */}
                         <motion.div className="card" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
-                            <h3>Highlights</h3>
+                            <h3>{t('highlights')}</h3>
                             <div className="flex" style={{ flexWrap: 'wrap', gap: '0.5rem', marginTop: '1rem' }}>
                                 {plan.highlights.map(h => (
                                     <span key={h} style={{ padding: '0.3rem 0.8rem', background: '#F3E8FF', color: '#7E22CE', borderRadius: '6px', fontSize: '0.85rem', fontWeight: 'bold' }}>
@@ -203,10 +188,10 @@ const TripPlan = () => {
                                 }}
                                 onClick={handleSave}
                             >
-                                <Download size={18} /> {isSaved ? 'Saved!' : 'Save PDF'}
+                                <Download size={18} /> {isSaved ? t('saved') : t('savePdf')}
                             </button>
                             <button className="btn btn-secondary" style={{ flex: 1 }} onClick={handleShare}>
-                                <Share2 size={18} /> Share
+                                <Share2 size={18} /> {t('share')}
                             </button>
                         </div>
                     </div>
@@ -240,23 +225,23 @@ const TripPlan = () => {
                             </div>
 
                             <div className="detail-grid">
-                                <DetailItem icon={<Clock size={16} />} label="Hours" value={`${selectedActivity.opening} - ${selectedActivity.closing}`} />
-                                <DetailItem icon={<Ticket size={16} />} label="Entry Cost" value={selectedActivity.cost} />
-                                <DetailItem icon={<Calendar size={16} />} label="Holidays" value={selectedActivity.holidays} />
-                                <DetailItem icon={<MapPin size={16} />} label="Travel Time" value={selectedActivity.travelTime} />
+                                <DetailItem icon={<Clock size={16} />} label={t('hours')} value={`${selectedActivity.opening} - ${selectedActivity.closing}`} />
+                                <DetailItem icon={<Ticket size={16} />} label={t('entryCost')} value={selectedActivity.cost} />
+                                <DetailItem icon={<Calendar size={16} />} label={t('holidays')} value={selectedActivity.holidays} />
+                                <DetailItem icon={<MapPin size={16} />} label={t('travelTime')} value={selectedActivity.travelTime} />
                             </div>
 
                             <div className="warning-box">
                                 <div className="flex items-center gap-2" style={{ marginBottom: '0.5rem' }}>
                                     <AlertTriangle size={18} color="var(--warning)" />
-                                    <strong style={{ fontSize: '0.8rem', color: '#92400E', textTransform: 'uppercase' }}>Warnings & Tips</strong>
+                                    <strong style={{ fontSize: '0.8rem', color: '#92400E', textTransform: 'uppercase' }}>{t('warningsTips')}</strong>
                                 </div>
                                 <p className="warning-text">{selectedActivity.warnings}</p>
                             </div>
 
                             <div className="flex justify-end mt-4">
                                 <button className="btn btn-primary" onClick={() => setSelectedActivity(null)}>
-                                    Got it!
+                                    {t('gotIt')}
                                 </button>
                             </div>
                         </motion.div>
@@ -267,7 +252,7 @@ const TripPlan = () => {
     );
 };
 
-const ActivitySlot = ({ label, data, onSelect }) => (
+const ActivitySlot = ({ label, data, onSelect, t }) => (
     <div className="time-slot" onClick={() => onSelect(data)}>
         <span className="slot-label">{label}</span>
         <div className="activity-title">{data.title}</div>
@@ -277,21 +262,21 @@ const ActivitySlot = ({ label, data, onSelect }) => (
             <span className="meta-item"><Ticket size={14} /> {data.cost}</span>
         </div>
         <div className="meta-row" style={{ marginTop: '-0.5rem' }}>
-            <span className="meta-item"><MapPin size={14} /> {data.travelTime} away</span>
+            <span className="meta-item"><MapPin size={14} /> {data.travelTime} {t('away')}</span>
         </div>
 
         <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             {data.safeToSkip ? (
-                <span className="tag tag-skip">Safe to Skip</span>
+                <span className="tag tag-skip">{t('safeToSkip')}</span>
             ) : (
-                <span className="tag tag-essential">Must Do</span>
+                <span className="tag tag-essential">{t('mustDo')}</span>
             )}
         </div>
 
         {!data.safeToSkip && (
             <div className="regret-box">
                 <span className="regret-label flex items-center gap-1">
-                    <Frown size={12} /> FOMO LEVEL: {data.regretProb}
+                    <Frown size={12} /> {t('fomoLevel')}: {data.regretProb}
                 </span>
                 <div className="regret-bar">
                     <div
@@ -315,3 +300,4 @@ const DetailItem = ({ icon, label, value }) => (
 );
 
 export default TripPlan;
+
