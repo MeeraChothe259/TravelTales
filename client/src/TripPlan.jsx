@@ -3,6 +3,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { ArrowLeft, Sun, Download, Share2, DollarSign, Clock, MapPin, Ticket, Frown } from 'lucide-react';
 
+import MapExploration from './MapExploration';
+
 const TripPlan = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -66,7 +68,21 @@ const TripPlan = () => {
             </div>
 
             <div className="container" style={{ marginTop: '-3rem', position: 'relative', zIndex: 10 }}>
+<<<<<<< HEAD
+                {/* 5️⃣ Map-Based Exploration */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    style={{ marginBottom: '2rem' }}
+                >
+                    <MapExploration plan={plan} />
+                </motion.div>
+
+                <div className="trip-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+=======
                 <div className="trip-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2.5fr) minmax(0, 1fr)', gap: '2rem' }}>
+>>>>>>> 7eecfb97e74a6da82c4ceddc52a6dffb542cc5c3
 
                     {/* Itinerary Column */}
                     <div className="itinerary-list">

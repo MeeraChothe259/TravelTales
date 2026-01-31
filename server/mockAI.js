@@ -82,9 +82,17 @@ const generateMockPlan = (data) => {
         });
     }
 
+<<<<<<< HEAD
+    // Combine preferences and safety for highlights
+    let allHighlights = preferences.length > 0 ? [...preferences] : ['Culture', 'Food', 'Scenery'];
+    if (data.safety && data.safety.length > 0) {
+        allHighlights = [...allHighlights, ...data.safety];
+    }
+=======
     // --- BUDGET CALC ---
     const budgetLevel = budget === 1 ? 'Budget' : budget === 2 ? 'Moderate' : 'Luxury';
     const dailyCost = budget === 1 ? 80 : budget === 2 ? 180 : 450;
+>>>>>>> 7eecfb97e74a6da82c4ceddc52a6dffb542cc5c3
 
     return {
         destination,
@@ -97,7 +105,11 @@ const generateMockPlan = (data) => {
             level: budgetLevel,
         },
         itinerary: days,
+<<<<<<< HEAD
+        highlights: allHighlights
+=======
         highlights: preferences.length > 0 ? preferences : ['Culture', 'Relaxation', 'Food']
+>>>>>>> 7eecfb97e74a6da82c4ceddc52a6dffb542cc5c3
     };
 };
 

@@ -187,6 +187,20 @@ const Onboarding = () => {
                     </div>
                 </InputCard>
 
+                {/* Card 8: Safety & Comfort */}
+                <InputCard number="8" title="Safety & Comfort (Optional but Powerful)" subtitle="Your well-being matters.">
+                    <div className="flex flex-col gap-2">
+                        {['Prefer safe areas only', 'Women-friendly places', 'Emergency contacts needed'].map(item => (
+                            <CheckboxItem
+                                key={item}
+                                label={item}
+                                checked={formData.safety.includes(item)}
+                                onChange={() => toggleSelection('safety', item)}
+                            />
+                        ))}
+                    </div>
+                </InputCard>
+
                 <div className="flex justify-center" style={{ marginTop: '3rem' }}>
                     <button
                         className="btn btn-primary"
