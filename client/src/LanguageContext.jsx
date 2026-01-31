@@ -32,10 +32,7 @@ export const translations = {
         totalTripCost: "Total Trip Cost",
         numTravelers: "NUMBER OF TRAVELERS",
         finalSplit: "Final Split",
-<<<<<<< HEAD
         dayWiseBudget: "Day-wise Budget Forecast",
-=======
->>>>>>> 2a50520d9487c2e4b0d9f049090e4158090e835f
         groupBudgetAlert: "over group budget",
         reset: "Reset to original travelers",
         mustDo: "Must Do",
@@ -172,10 +169,7 @@ export const translations = {
         totalTripCost: "Costo Total del Viaje",
         numTravelers: "NÚMERO DE VIAJEROS",
         finalSplit: "División Final",
-<<<<<<< HEAD
         dayWiseBudget: "Pronóstico de Presupuesto Diario",
-=======
->>>>>>> 2a50520d9487c2e4b0d9f049090e4158090e835f
         groupBudgetAlert: "sobre el presupuesto grupal",
         reset: "Restablecer a viajeros originales",
         mustDo: "Imprescindible",
@@ -308,10 +302,7 @@ export const translations = {
         totalTripCost: "कुल यात्रा लागत",
         numTravelers: "यात्रियों की संख्या",
         finalSplit: "अंतिम विभाजन",
-<<<<<<< HEAD
         dayWiseBudget: "दैनिक बजट पूर्वानुमान",
-=======
->>>>>>> 2a50520d9487c2e4b0d9f049090e4158090e835f
         groupBudgetAlert: "समूह बजट से अधिक",
         reset: "मूल यात्रियों पर रीसेट करें",
         mustDo: "ज़रूरी काम",
@@ -444,10 +435,7 @@ export const translations = {
         totalTripCost: "Общая стоимость поездки",
         numTravelers: "КОЛИЧЕСТВО ПУТЕШЕСТВЕННИКОВ",
         finalSplit: "Итоговое разделение",
-<<<<<<< HEAD
         dayWiseBudget: "Прогноз ежедневного бюджета",
-=======
->>>>>>> 2a50520d9487c2e4b0d9f049090e4158090e835f
         groupBudgetAlert: "превышение бюджета группы",
         reset: "Сбросить до исходных путешественников",
         mustDo: "Обязательно к посещению",

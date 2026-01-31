@@ -18,7 +18,6 @@ const { generateRealPlan } = require('./geminiService');
 
 
 // Routes
-<<<<<<< HEAD
 app.post('/api/chat', async (req, res) => {
     try {
         const { message } = req.body;
@@ -39,7 +38,6 @@ app.get('/api/geocode', async (req, res) => {
 
         console.log("Geocoding Request for:", q);
 
-        // Using built-in fetch (Node 18+) or a fallback
         const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}&limit=1`, {
             headers: {
                 'User-Agent': 'TravelTales/1.0 (contact: support@traveltales.ai)'
@@ -58,13 +56,9 @@ app.get('/api/geocode', async (req, res) => {
     }
 });
 
-app.post('/api/generate-plan', (req, res) => {
-=======
 app.post('/api/generate-plan', async (req, res) => {
     const formData = req.body;
     console.log("Received AI Plan Request for:", formData.destination);
-
->>>>>>> 2a50520d9487c2e4b0d9f049090e4158090e835f
     try {
         // 1. Try Real AI Generation
         const plan = await generateRealPlan(formData);
