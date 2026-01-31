@@ -704,6 +704,77 @@ input[type=range]::-webkit-slider-runnable-track {
   background: #E11D48;
 }
 
+<<<<<<< HEAD
+=======
+/* --- SMART BUDGET MANAGER --- */
+.budget-manager-container {
+  overflow: hidden;
+}
+
+.stat-card {
+  background: #F8FAFC;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  margin-bottom: 0.3rem;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  color: var(--secondary);
+}
+
+.day-budget-row {
+  margin-bottom: 0.5rem;
+}
+
+.budget-bar-bg {
+  width: 100%;
+  height: 6px;
+  background: #E2E8F0;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.overspend-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  padding: 0.4rem 0.8rem;
+  background: #FEF2F2;
+  border: 1px solid #FECACA;
+  border-radius: 6px;
+  color: #B91C1C;
+  font-size: 0.8rem;
+  font-weight: bold;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.02);
+  }
+
+  100% {
+    transform: scale(1);
+  }
+}
+
+>>>>>>> 7b1421a5fbcb9e3856f7277895f3fd4c814a33c1
 /* --- Print Styles --- */
 /* --- Chatbot Pulse & Animations --- */
 @keyframes ai-pulse {
@@ -738,8 +809,12 @@ input[type=range]::-webkit-slider-runnable-track {
   .sidebar,
   .trip-header button,
   .modal-overlay,
+<<<<<<< HEAD
   .regret-box,
   .chatbot-wrapper {
+=======
+  .regret-box {
+>>>>>>> 7b1421a5fbcb9e3856f7277895f3fd4c814a33c1
     display: none !important;
   }
 

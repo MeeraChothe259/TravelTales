@@ -4,7 +4,7 @@ const cors = require('cors');
 const { generateMockPlan, handleChatResponse } = require('./mockAI');
 
 const app = express();
-const PORT = 5000;
+const PORT = 5005;
 
 app.use(cors());
 app.use(express.json());
@@ -35,9 +35,14 @@ app.post('/api/generate-plan', (req, res) => {
 
         // Simulate AI Delay (1.5 seconds)
         setTimeout(() => {
-            const plan = generateMockPlan(formData);
-            console.log("Successfully generated plan for:", formData.destination);
-            res.json({ success: true, plan });
+            try {
+                const plan = generateMockPlan(formData);
+                console.log("Successfully generated plan for:", formData.destination);
+                res.json({ success: true, plan });
+            } catch (err) {
+                console.error("Internal simulation error:", err);
+                res.status(500).json({ success: false, message: "Error during plan generation" });
+            }
         }, 1500);
 
     } catch (error) {
@@ -46,7 +51,7 @@ app.post('/api/generate-plan', (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
 }).on('error', (err) => {
     if (err.code === 'EADDRINUSE') {
@@ -55,4 +60,13 @@ app.listen(PORT, () => {
     } else {
         console.error("Server error:", err);
     }
+});
+
+server.on('error', (err) => {
+    console.error("SERVER ERROR:", err);
+});
+
+// Keeping the process alive explicitly if needed (though listen should do it)
+process.on('uncaughtException', (err) => {
+    console.error('Uncaught Exception:', err);
 });

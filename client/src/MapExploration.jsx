@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import { Layers, Utensils, Bus, Car, Stethoscope, MapPin, Navigation } from 'lucide-react';
+import { Utensils, Bus, Car, Stethoscope, MapPin } from 'lucide-react';
+import { useLanguage } from './LanguageContext';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
@@ -17,6 +18,7 @@ let DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 const MapExploration = ({ plan }) => {
+    const { t } = useLanguage();
     const [mapCenter, setMapCenter] = useState([35.6762, 139.6503]); // Default to Tokyo
     const [isSearching, setIsSearching] = useState(false);
 
@@ -194,14 +196,14 @@ const MapExploration = ({ plan }) => {
         <div className="map-exploration-container card" style={{ padding: 0, overflow: 'hidden', height: '500px', display: 'flex', flexDirection: 'column' }}>
             <div className="map-header" style={{ padding: '1rem', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'white', zIndex: 10 }}>
                 <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                    <MapPin size={20} color="var(--primary)" /> Map Exploration
+                    <MapPin size={20} color="var(--primary)" /> {t('mapExploration')}
                 </h3>
                 <div className="layer-toggles" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                    <LayerToggle label="Places" icon={<MapPin size={14} />} active={activeLayers.places} onClick={() => toggleLayer('places')} />
-                    <LayerToggle label="Food" icon={<Utensils size={14} />} active={activeLayers.food} onClick={() => toggleLayer('food')} />
-                    <LayerToggle label="Transport" icon={<Bus size={14} />} active={activeLayers.transport} onClick={() => toggleLayer('transport')} />
-                    <LayerToggle label="Rental" icon={<Car size={14} />} active={activeLayers.rental} onClick={() => toggleLayer('rental')} />
-                    <LayerToggle label="Emergency" icon={<Stethoscope size={14} />} active={activeLayers.emergency} onClick={() => toggleLayer('emergency')} />
+                    <LayerToggle label={t('places')} icon={<MapPin size={14} />} active={activeLayers.places} onClick={() => toggleLayer('places')} />
+                    <LayerToggle label={t('food')} icon={<Utensils size={14} />} active={activeLayers.food} onClick={() => toggleLayer('food')} />
+                    <LayerToggle label={t('transport')} icon={<Bus size={14} />} active={activeLayers.transport} onClick={() => toggleLayer('transport')} />
+                    <LayerToggle label={t('rental')} icon={<Car size={14} />} active={activeLayers.rental} onClick={() => toggleLayer('rental')} />
+                    <LayerToggle label={t('emergency')} icon={<Stethoscope size={14} />} active={activeLayers.emergency} onClick={() => toggleLayer('emergency')} />
                 </div>
             </div>
 
@@ -228,7 +230,7 @@ const MapExploration = ({ plan }) => {
 
                 {/* 3D Overlay Hint (Visual Touch) */}
                 <div style={{ position: 'absolute', bottom: '1rem', right: '1rem', zIndex: 1000, background: 'rgba(255,255,255,0.9)', padding: '0.5rem 1rem', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.1)' }}>
-                    🗺️ Interactive Map
+                    🗺️ {t('interactiveMap')}
                 </div>
             </div>
         </div>
@@ -256,3 +258,4 @@ const LayerToggle = ({ label, icon, active, onClick }) => (
 );
 
 export default MapExploration;
+
