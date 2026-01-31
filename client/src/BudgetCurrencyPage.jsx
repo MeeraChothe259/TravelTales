@@ -78,19 +78,33 @@ const BudgetCurrencyPage = () => {
     }
 
     const [numTravelers, setNumTravelers] = useState(details?.travelers || 1);
+    const initialTravelers = details?.travelers || 1;
 
-    const convertedTotal = convertValue(details.totalEstimated, targetCurrency);
-    // Since the original totalEstimated was based on details.travelers, 
-    // we calculate the base cost per person from the original plan and then multiply by current selection if we want to simulate.
-    // However, usually the user just wants to see how the FIXED total splits among different numbers of people.
-    // Let's stick to splitting the total for now as a "Split Calculator".
-    const convertedPerPerson = convertValue(details.totalEstimated / numTravelers, targetCurrency);
+    // --- SMART BUDGET MODEL ---
+    // 40% are fixed/shared (Hotels, etc.), 60% are individual (Food, entry)
+    const SHARED_RATIO = 0.4;
+    const INDIVIDUAL_RATIO = 0.6;
+
+    const currentStats = useMemo(() => {
+        const individualBaseTotal = details.totalEstimated * INDIVIDUAL_RATIO;
+        const sharedBaseTotal = details.totalEstimated * SHARED_RATIO;
+
+        const perPersonIndividualCost = individualBaseTotal / initialTravelers;
+
+        const currentTotal = sharedBaseTotal + (perPersonIndividualCost * numTravelers);
+        const currentSplit = currentTotal / numTravelers;
+
+        return { total: currentTotal, split: currentSplit };
+    }, [details.totalEstimated, initialTravelers, numTravelers]);
+
+    const convertedTotal = convertValue(currentStats.total, targetCurrency);
+    const convertedPerPerson = convertValue(currentStats.split, targetCurrency);
 
     return (
         <div style={{ minHeight: '100vh', background: '#F8FAFC', paddingTop: '80px' }}>
             <Navbar />
 
-            <div className="container" style={{ maxWidth: '1000px', padding: '2rem 1.5rem' }}>
+            <div className="container" style={{ maxWidth: '1200px', padding: '2rem 1.5rem' }}>
                 <button
                     onClick={() => navigate(-1)}
                     className="btn btn-secondary"
@@ -162,29 +176,20 @@ const BudgetCurrencyPage = () => {
                                 </div>
                             </div>
 
-                            <div style={{ marginTop: '1rem', padding: '1.5rem', background: '#F8FAFC', borderRadius: '16px', border: '1px solid #E2E8F0' }}>
-                                <h4 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <Users size={18} color="var(--primary)" /> {t('personWiseSplit') || 'Person-wise Split'}
-                                </h4>
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                                    {[...Array(numTravelers)].map((_, i) => (
-                                        <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '0.75rem 1rem', background: 'white', borderRadius: '10px', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                                                <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'var(--primary-light)', color: 'var(--primary)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.8rem', fontWeight: 'bold' }}>
-                                                    {i + 1}
-                                                </div>
-                                                <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-main)' }}>Traveler {i + 1}</span>
-                                            </div>
-                                            <span style={{ fontWeight: 'bold', color: 'var(--primary)' }}>{currencySymbol}{Math.round(convertedPerPerson).toLocaleString()}</span>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
+
 
                             <div className="flex flex-col gap-4">
-                                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><TrendingUp size={18} /> {t('dayWiseForecast')} ({targetCurrency})</h4>
+                                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <TrendingUp size={18} /> {t('dayWiseForecast')} ({targetCurrency})
+                                </h4>
                                 {details.dayWise.map((day, idx) => {
-                                    const dayVal = convertValue(day.total, targetCurrency);
+                                    // Calculate day-specific scaling
+                                    const dayIndividualBase = day.total * INDIVIDUAL_RATIO;
+                                    const daySharedBase = day.total * SHARED_RATIO;
+                                    const perPersonDayIndividual = dayIndividualBase / initialTravelers;
+                                    const currentDayTotal = daySharedBase + (perPersonDayIndividual * numTravelers);
+
+                                    const dayVal = convertValue(currentDayTotal, targetCurrency);
                                     return (
                                         <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
                                             <span style={{ fontWeight: '800' }}>{t('day')} {day.day}</span>

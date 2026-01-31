@@ -773,6 +773,32 @@ input[type=range]::-webkit-slider-runnable-track {
 }
 
 /* --- Print Styles --- */
+/* --- Chatbot Pulse & Animations --- */
+@keyframes ai-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.4);
+  }
+
+  70% {
+    transform: scale(1.05);
+    box-shadow: 0 0 0 15px rgba(79, 70, 229, 0);
+  }
+
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 rgba(79, 70, 229, 0);
+  }
+}
+
+.animate-pulse {
+  animation: ai-pulse 2s infinite ease-in-out;
+}
+
+.chatbot-wrapper {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
 @media print {
 
   .navbar,
@@ -780,7 +806,8 @@ input[type=range]::-webkit-slider-runnable-track {
   .sidebar,
   .trip-header button,
   .modal-overlay,
-  .regret-box {
+  .regret-box,
+  .chatbot-wrapper {
     display: none !important;
   }
 

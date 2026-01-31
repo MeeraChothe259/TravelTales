@@ -620,4 +620,39 @@ const generateMockPlan = (data) => {
     };
 };
 
-module.exports = { generateMockPlan };
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+
+// Initialize Gemini
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const model = genAI.getGenerativeModel({
+    model: "gemini-flash-latest",
+    systemInstruction: "You are TravelTales AI. Provide extremely short, specific, and straight-forward answers. NO fluff, NO enthusiasm. Just give the direct facts asked for. If the user makes a typo like 'Parys', understand it as Paris but keep the answer brief. Your goal is maximum efficiency."
+});
+
+const handleChatResponse = async (message) => {
+    try {
+        const result = await model.generateContent(message);
+        const response = await result.response;
+        return response.text();
+    } catch (error) {
+        if (error.message.includes("429")) {
+            console.warn("Gemini Rate Limit Hit. Falling back to mock.");
+            return "I'm a bit overwhelmed with travel requests right now! Please wait a few seconds and ask me again. In the meantime, I can still help with basics!";
+        }
+        console.error("Gemini Error:", error.message);
+
+        // Fallback Mock Logic
+        const msg = message.toLowerCase().trim();
+        const rnd = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+        const travelKnowledge = {
+            greetings: ["Hello! I'm your TravelTales assistant. How can I help you explore today?", "Hi there!", "Greeting! I'm ready to help you plan."],
+            fallback: ["I'm having a little trouble connecting to my global brain right now, but I can still help you with basics! What's on your mind?", "My AI signals are a bit weak, but I'm here for your travel needs."]
+        };
+
+        if (msg.includes("hello") || msg.includes("hi")) return rnd(travelKnowledge.greetings);
+        return rnd(travelKnowledge.fallback);
+    }
+};
+
+module.exports = { generateMockPlan, handleChatResponse };
