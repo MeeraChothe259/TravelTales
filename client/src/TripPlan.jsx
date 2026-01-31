@@ -3,12 +3,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ArrowLeft, Sun, Download, Share2, DollarSign, Clock, MapPin,
-    Ticket, Frown, X, AlertTriangle, Calendar, Info
+    Ticket, Frown, X, AlertTriangle, Calendar, Info, Wallet, ArrowRight
 } from 'lucide-react';
 
 import MapExploration from './MapExploration';
 import LocalIntelligence from './LocalIntelligence';
-import BudgetManager from './BudgetManager';
 import { useLanguage } from './LanguageContext';
 
 const TripPlan = () => {
@@ -155,9 +154,34 @@ const TripPlan = () => {
 
                     {/* Sidebar */}
                     <div className="sidebar" style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                        {/* 💰 Smart Budget Manager */}
-                        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-                            <BudgetManager details={plan.budgetDetails} />
+                        {/* 💰 Budget Analysis Redirect */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            className="card"
+                            style={{
+                                background: 'linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%)',
+                                color: 'white',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '1rem',
+                                padding: '1.5rem'
+                            }}
+                        >
+                            <div className="flex items-center gap-3">
+                                <Wallet size={24} color="white" />
+                                <h3 style={{ margin: 0, color: 'white' }}>{t('smartBudget')}</h3>
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>
+                                {t('smartBudgetDesc')}
+                            </p>
+                            <button
+                                onClick={() => navigate('/budget', { state: { details: plan.budgetDetails } })}
+                                className="btn"
+                                style={{ background: 'white', color: 'var(--primary)', width: '100%', border: 'none' }}
+                            >
+                                {t('viewDetailedBudget') || 'View Analysis & Currency'} <ArrowRight size={18} />
+                            </button>
                         </motion.div>
 
                         {/* Highlights */}

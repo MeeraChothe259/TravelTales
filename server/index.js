@@ -21,9 +21,14 @@ app.post('/api/generate-plan', (req, res) => {
 
         // Simulate AI Delay (1.5 seconds)
         setTimeout(() => {
-            const plan = generateMockPlan(formData);
-            console.log("Successfully generated plan for:", formData.destination);
-            res.json({ success: true, plan });
+            try {
+                const plan = generateMockPlan(formData);
+                console.log("Successfully generated plan for:", formData.destination);
+                res.json({ success: true, plan });
+            } catch (err) {
+                console.error("Internal simulation error:", err);
+                res.status(500).json({ success: false, message: "Error during plan generation" });
+            }
         }, 1500);
 
     } catch (error) {

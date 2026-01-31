@@ -18,7 +18,8 @@ const Onboarding = () => {
         budgetSplit: 'equal',
         preferences: [],
         constraints: [],
-        safety: []
+        safety: [],
+        travelerCount: 1
     });
 
     const languages = [
@@ -123,7 +124,7 @@ const Onboarding = () => {
 
                 {/* Card 3: Partners */}
                 <InputCard number="3" title={t('whoComing')} subtitle={t('whoComingSub')}>
-                    <div className="selection-grid">
+                    <div className="selection-grid" style={{ marginBottom: '1.5rem' }}>
                         {['Solo', 'Couple', 'Friends', 'Family', 'Seniors', 'Girls Trip'].map(type => (
                             <SelectableCard
                                 key={type}
@@ -132,6 +133,19 @@ const Onboarding = () => {
                                 onClick={() => handleInputChange('partners', type)}
                             />
                         ))}
+                    </div>
+                    <div style={{ marginTop: '1rem' }}>
+                        <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                            {t('exactTravelerCount') || 'Or enter exact number of travelers'}
+                        </label>
+                        <input
+                            type="number"
+                            min="1"
+                            className="input-field"
+                            style={{ maxWidth: '120px' }}
+                            value={formData.travelerCount || 1}
+                            onChange={(e) => handleInputChange('travelerCount', parseInt(e.target.value) || 1)}
+                        />
                     </div>
                 </InputCard>
 

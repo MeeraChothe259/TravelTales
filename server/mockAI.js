@@ -1,5 +1,15 @@
 const generateMockPlan = (data) => {
-    const { destination, startDate, endDate, partners, mood, budget, preferences, safety, language = 'en' } = data;
+    const {
+        destination,
+        startDate,
+        endDate,
+        partners = 'Solo',
+        mood = 'relaxed',
+        budget = 2,
+        preferences = [],
+        safety = [],
+        language = 'en'
+    } = data;
 
     if (!destination) {
         throw new Error("Destination is required");
@@ -131,8 +141,8 @@ const generateMockPlan = (data) => {
     const targetDailyBudget = budget === 1 ? 80 : budget === 2 ? 180 : 450;
     const dailyExpensesBase = targetDailyBudget * 0.6;
 
-    const numTravelers = partners === 'Solo' ? 1 : partners === 'Couple' ? 2 : partners === 'Friends' ? 3 : 4;
-    const totalTripCost = (totalActivityCost + (dailyExpensesBase * tripLength)) * numTravelers;
+    const numTravelers = data.travelerCount || (partners === 'Solo' ? 1 : partners === 'Couple' ? 2 : partners === 'Friends' ? 3 : 4);
+    const totalTripCost = (totalActivityCost + (dailyExpensesBase * numDays)) * numTravelers;
 
     const budgetDetails = {
         totalEstimated: totalTripCost,
