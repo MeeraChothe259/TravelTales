@@ -27,6 +27,8 @@ const Onboarding = () => {
         travelerCount: prefilledData.travelers || 1
     });
 
+
+
     const languages = [
         { code: 'en', name: 'English' },
         { code: 'es', name: 'Español' },
@@ -63,7 +65,7 @@ const Onboarding = () => {
 
         setIsLoading(true);
         try {
-            const response = await fetch('http://localhost:5005/api/generate-plan', {
+            const response = await fetch('http://localhost:5000/api/generate-plan', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ ...formData, language })

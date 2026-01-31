@@ -18,13 +18,12 @@ const BudgetManager = ({ details }) => {
     const INDIVIDUAL_RATIO = 0.6;
 
     const budgetStats = useMemo(() => {
-        // Calculate base components from the original estimate
         const individualBaseTotal = totalEstimated * INDIVIDUAL_RATIO;
         const sharedBaseTotal = totalEstimated * SHARED_RATIO;
 
         const perPersonIndividualCost = individualBaseTotal / initialTravelers;
 
-        // Calculate New Totals
+        // Calculate New Totals: Shared stays same, Individual scales with N
         const currentIndividualTotal = perPersonIndividualCost * numPersons;
         const currentTotal = sharedBaseTotal + currentIndividualTotal;
         const currentSplit = currentTotal / numPersons;
@@ -37,7 +36,7 @@ const BudgetManager = ({ details }) => {
             const perPersonDayIndividual = dayIndividualBase / initialTravelers;
             const currentDayTotal = daySharedBase + (perPersonDayIndividual * numPersons);
 
-            // Targets also scale slightly but stay harder to reach for larger groups
+            // Targets also scale slightly
             const currentDayTarget = (day.target * SHARED_RATIO) + ((day.target * INDIVIDUAL_RATIO / initialTravelers) * numPersons);
 
             const overspendPercent = currentDayTotal > currentDayTarget
@@ -144,7 +143,7 @@ const BudgetManager = ({ details }) => {
 
             <div className="day-splits" style={{ padding: '0 1.5rem 1.5rem' }}>
                 <h4 style={{ marginBottom: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.95rem' }}>
-                    <Calendar size={18} color="var(--primary)" /> {t('dayWiseForecast')}
+                    <Calendar size={18} color="var(--primary)" /> {t('dayWiseBudget')}
                 </h4>
                 <div className="flex flex-col gap-4">
                     {budgetStats.dayWise.map((day, idx) => (
@@ -196,28 +195,7 @@ const BudgetManager = ({ details }) => {
                 </div>
             </div>
 
-            <div className="partner-split-card" style={{ margin: '0 1.5rem 1.5rem', padding: '1.25rem', background: 'linear-gradient(135deg, #F0F9FF 0%, #E0F2FE 100%)', borderRadius: '16px', border: '1px solid #BAE6FD', boxShadow: '0 4px 12px rgba(186, 230, 253, 0.2)' }}>
-                <div className="flex items-center gap-4">
-                    <div style={{ background: 'white', padding: '0.75rem', borderRadius: '12px', color: 'var(--primary)', boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
-                        <User size={24} />
-                    </div>
-                    <div>
-                        <h4 style={{ margin: 0, color: '#0369A1', fontSize: '1rem' }}>{t('finalSplit')}</h4>
-                        <p style={{ margin: 0, fontSize: '0.8rem', color: '#0C4A6E', opacity: 0.8 }}>{t('forecastFor')} {numPersons} {numPersons === 1 ? t('traveler') : t('travelersLabel')}</p>
-                    </div>
-                    <div style={{ marginLeft: 'auto', textAlign: 'right' }}>
-                        <motion.strong
-                            key={budgetStats.split}
-                            initial={{ scale: 1.1, color: '#0EA5E9' }}
-                            animate={{ scale: 1, color: 'var(--primary)' }}
-                            style={{ fontSize: '1.5rem', display: 'block', lineHeight: 1 }}
-                        >
-                            ${Math.round(budgetStats.split).toLocaleString()}
-                        </motion.strong>
-                        <span style={{ fontSize: '0.7rem', fontWeight: 'bold', color: '#0369A1', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{t('perPerson')}</span>
-                    </div>
-                </div>
-            </div>
+
         </div>
     );
 };

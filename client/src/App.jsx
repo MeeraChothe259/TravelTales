@@ -9,6 +9,7 @@ import HotelSuggestionsPage from './HotelSuggestionsPage';
 import DestinationDiscovery from './DestinationDiscovery';
 import DestinationResults from './DestinationResults';
 import Navbar from './components/Navbar';
+import TravelChatbot from './TravelChatbot';
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/budget" element={<BudgetCurrencyPage />} />
           <Route path="/hotels" element={<HotelSuggestionsPage />} />
         </Routes>
+        <TravelChatbot />
       </Router>
     </LanguageProvider>
   );
