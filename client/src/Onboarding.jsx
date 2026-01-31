@@ -188,7 +188,6 @@ const Onboarding = () => {
                 </InputCard>
 
                 {/* Card 8: Safety & Comfort */}
-<<<<<<< HEAD
                 <InputCard number="8" title="Safety & Comfort" subtitle="Optional but Powerful preferences.">
                     <div className="flex flex-col gap-2">
                         {[
@@ -196,11 +195,6 @@ const Onboarding = () => {
                             'Women-friendly places',
                             'Emergency contacts needed'
                         ].map(item => (
-=======
-                <InputCard number="8" title="Safety & Comfort (Optional but Powerful)" subtitle="Your well-being matters.">
-                    <div className="flex flex-col gap-2">
-                        {['Prefer safe areas only', 'Women-friendly places', 'Emergency contacts needed'].map(item => (
->>>>>>> 632e7e0839e54373d54c1f10184d36216076e3be
                             <CheckboxItem
                                 key={item}
                                 label={item}
