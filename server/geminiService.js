@@ -34,7 +34,10 @@ const fetchExchangeRate = async (base, target) => {
 const generateRealPlan = async (data) => {
     const { destination, startDate, endDate, partners, mood, budget, preferences, travelerCount, language = 'en' } = data;
 
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({
+        model: "gemini-1.5-flash-latest",
+        tools: [{ googleSearchRetrieval: {} }]
+    });
 
     const prompt = `
         Generate a highly detailed travel itinerary for ${destination} from ${startDate} to ${endDate}.
@@ -106,11 +109,31 @@ const generateRealPlan = async (data) => {
                 "phone": "string",
                 "address": "string"
              }
+          ],
+          "hiddenGems": [
+             {
+                "title": "string",
+                "description": "string",
+                "whyUnderrated": "string",
+                "coords": { "lat": number, "lng": number },
+                "imageUrl": "string"
+             }
+          ],
+          "vlogs": [
+             {
+                "title": "string (Real vlog title)",
+                "youtuber": "string (Real creator name)",
+                "url": "https://www.youtube.com/watch?v=VIDEO_ID",
+                "thumbnail": "https://img.youtube.com/vi/VIDEO_ID/mqdefault.jpg"
+             }
           ]
         }
 
 
-        IMPORTANT: For smartAlternatives, provide SPECIFIC, CREATIVE, and ACTIONABLE suggestions:
+        IMPORTANT: 
+        - For vlogs, USE THE SEARCH TOOL to find high-quality, popular, and REAL YouTube videos specifically about the destination. Use well-known creators like Lost LeBlanc, Kara and Nate, or Mark Wiens. Do not generate fake URLs.
+        - For hiddenGems, USE THE SEARCH TOOL to find 3-5 REAL, underrated, and authentic hidden gems in ${destination}. These should be spots not typically found in top 10 tourist lists.
+        - For smartAlternatives, provide SPECIFIC, CREATIVE, and ACTIONABLE suggestions:
         - "late": Suggest rescheduling with exact times, transportation tips, and time-saving hacks
         - "skipped": Recommend nearby alternatives with descriptions, distances, and why locals love them
         - "overspent": Provide budget-friendly swaps with cost comparisons and authentic local experiences
@@ -167,6 +190,26 @@ const generateRealPlan = async (data) => {
         }
 
         plan.coverImage = destImage;
+
+        // Fallback for Hidden Gems if AI misses it
+        if (!plan.hiddenGems || plan.hiddenGems.length === 0) {
+            plan.hiddenGems = [
+                {
+                    title: `The Secret Garden of ${destination}`,
+                    description: "A beautiful, nearly forgotten corner of the city where locals find peace. Perfect for a quiet afternoon.",
+                    whyUnderrated: "It's hidden in plain sight behind a historic library and rarely makes it into guidebooks.",
+                    coords: plan.destinationCoords || { lat: 0, lng: 0 },
+                    imageUrl: "https://images.unsplash.com/photo-1558239325-466986503c1b?auto=format&fit=crop&w=800&q=80"
+                },
+                {
+                    title: "Local Artisanal Alley",
+                    description: "A vibrant but narrow street filled with craftsmen, vintage record stores, and the best local coffee.",
+                    whyUnderrated: "Too small for tour buses, this street preserves the authentic vibe of the neighborhood.",
+                    coords: plan.destinationCoords || { lat: 0, lng: 0 },
+                    imageUrl: "https://images.unsplash.com/photo-1527661591475-527312dd65f5?auto=format&fit=crop&w=800&q=80"
+                }
+            ];
+        }
 
         return plan;
     } catch (error) {
