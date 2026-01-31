@@ -809,6 +809,49 @@ const generateMockPlan = (data) => {
                 phone: "+1 (555) 321-9999",
                 address: "3 Secret Lane, Velvet Quarter"
             }
+        ],
+        vlogs: [
+            {
+                title: `Ultimate ${destination} Travel Guide - 10 Best Things to Do!`,
+                youtuber: "Lost LeBlanc",
+                url: "https://www.youtube.com/watch?v=1xN5-3tM8yI",
+                thumbnail: "https://img.youtube.com/vi/1xN5-3tM8yI/mqdefault.jpg"
+            },
+            {
+                title: `I Traveled to ${destination} Solo (Our First Impressions)`,
+                youtuber: "Kara and Nate",
+                url: "https://www.youtube.com/watch?v=FqG7j4n1C_E",
+                thumbnail: "https://img.youtube.com/vi/FqG7j4n1C_E/mqdefault.jpg"
+            },
+            {
+                title: `${destination} on a Budget! ($50 a Day Challenge)`,
+                youtuber: "Mark Wiens",
+                url: "https://www.youtube.com/watch?v=6Xn4oR9zXjQ",
+                thumbnail: "https://img.youtube.com/vi/6Xn4oR9zXjQ/mqdefault.jpg"
+            }
+        ],
+        hiddenGems: [
+            {
+                title: "The Whispering Garden",
+                description: "A serene, centuries-old garden tucked away behind a nondescript library. Perfectly quiet even on weekends.",
+                whyUnderrated: "Locals keep it secret to avoid crowds. The entrance is literally through a bookshelf!",
+                coords: { lat: 35.6762 + 0.05, lng: 139.6503 - 0.02 },
+                imageUrl: "https://images.unsplash.com/photo-1582103287241-2762adba6c36?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                title: "Old Town Vinyl Bar",
+                description: "A basement bar with over 10,000 vintage jazz records and the best coffee-infused cocktails in the city.",
+                whyUnderrated: "Has no sign outside. You have to knock on the blue door 3 times.",
+                coords: { lat: 35.6762 - 0.03, lng: 139.6503 + 0.01 },
+                imageUrl: "https://images.unsplash.com/photo-1514525253344-f814d0743b1a?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                title: "The Artisanal Rooftop",
+                description: "A community-run rooftop farm and café with views of the skyline that beat any observation deck.",
+                whyUnderrated: "Mainly used for community workshops. They only serve what they grow that morning.",
+                coords: { lat: 35.6762 + 0.01, lng: 139.6503 + 0.04 },
+                imageUrl: "https://images.unsplash.com/photo-1541167760496-162955ed8a9f?auto=format&fit=crop&w=800&q=80"
+            }
         ]
     };
 };

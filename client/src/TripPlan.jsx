@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ArrowLeft, Sun, Download, Share2, DollarSign, Clock, MapPin,
-    Ticket, Frown, X, AlertTriangle, Calendar, Info, Wallet, ArrowRight, Home, Users, Zap
+    Ticket, Frown, X, AlertTriangle, Calendar, Info, Wallet, ArrowRight, Home, Users, Zap, Youtube, Sparkles
 } from 'lucide-react';
 
 import MapExploration from './MapExploration';
@@ -262,6 +262,69 @@ const TripPlan = () => {
                                 style={{ background: 'white', color: '#059669', width: '100%', border: 'none' }}
                             >
                                 {t('viewStays') || 'Explore Hotels'} <ArrowRight size={18} />
+                            </button>
+                        </motion.div>
+
+                        {/* 🎥 Travel Vlogs Card (NEW) */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.08 }}
+                            className="card"
+                            style={{
+                                background: 'linear-gradient(135deg, #FF4B2B 0%, #FF416C 100%)',
+                                color: 'white',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '1rem',
+                                padding: '1.5rem',
+                                border: 'none',
+                                boxShadow: '0 10px 25px -5px rgba(255, 75, 43, 0.4)'
+                            }}
+                        >
+                            <div className="flex items-center gap-3">
+                                <Youtube size={24} color="white" />
+                                <h3 style={{ margin: 0, color: 'white' }}>{t('travelVlogs') || 'Visual Journey'}</h3>
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>
+                                {t('vlogDesc') || 'Watch most viewed travel vlogs to visualize your trip.'}
+                            </p>
+                            <button
+                                onClick={() => navigate('/vlogs', { state: { vlogs: plan.vlogs, destination: plan.destination } })}
+                                className="btn"
+                                style={{ background: 'white', color: '#FF416C', width: '100%', border: 'none' }}
+                            >
+                                {t('watchVlogs') || 'Watch Vlogs'} <ArrowRight size={18} />
+                            </button>
+                        </motion.div>
+
+                        {/* ✨ Hidden Gems Card (NEW) */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.09 }}
+                            className="card"
+                            style={{
+                                background: 'linear-gradient(135deg, #7C3AED 0%, #C084FC 100%)',
+                                color: 'white',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '1rem',
+                                padding: '1.5rem',
+                                border: 'none',
+                                boxShadow: '0 10px 25px -5px rgba(124, 58, 237, 0.4)'
+                            }}
+                        >
+                            <div className="flex items-center gap-3">
+                                <Sparkles size={24} color="white" />
+                                <h3 style={{ margin: 0, color: 'white' }}>{t('hiddenGemsCard') || 'Hidden Gems'}</h3>
+                                <div style={{ background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.7rem', fontWeight: 'bold' }}>NEW</div>
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>
+                                {t('hiddenGemsDesc') || 'Discover underrated spots and local secrets. (Fresh plan required for total accuracy!)'}
+                            </p>
+                            <button
+                                onClick={() => navigate('/hidden-gems', { state: { hiddenGems: plan.hiddenGems || [], destination: plan.destination } })}
+                                className="btn"
+                                style={{ background: 'white', color: '#7C3AED', width: '100%', border: 'none' }}
+                            >
+                                {t('viewSecrets') || 'View Secrets'} <ArrowRight size={18} />
                             </button>
                         </motion.div>
 

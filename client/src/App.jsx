@@ -10,6 +10,8 @@ import DestinationDiscovery from './DestinationDiscovery';
 import DestinationResults from './DestinationResults';
 import Navbar from './components/Navbar';
 import TravelChatbot from './TravelChatbot';
+import VlogsPage from './VlogsPage';
+import HiddenGemsPage from './HiddenGemsPage';
 
 function App() {
   return (
@@ -24,6 +26,8 @@ function App() {
           <Route path="/trip" element={<><Navbar /><TripPlan /></>} />
           <Route path="/budget" element={<BudgetCurrencyPage />} />
           <Route path="/hotels" element={<HotelSuggestionsPage />} />
+          <Route path="/vlogs" element={<VlogsPage />} />
+          <Route path="/hidden-gems" element={<HiddenGemsPage />} />
         </Routes>
         <TravelChatbot />
       </Router>
