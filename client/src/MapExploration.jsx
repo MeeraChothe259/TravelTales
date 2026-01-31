@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapContainer, TileLayer, Marker, Popup, useMap, ScaleControl } from 'react-leaflet';
-import { Utensils, Bus, Car, Stethoscope, MapPin, Globe, Map, ExternalLink, Phone, Clock } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup, useMap, ScaleControl, Polyline, ZoomControl } from 'react-leaflet';
+import { Utensils, Bus, Car, Stethoscope, MapPin, Globe, Map, ExternalLink, Phone, Clock, Maximize2, Crosshair, Box } from 'lucide-react';
 import { useLanguage } from './LanguageContext';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -34,9 +34,12 @@ const MapExploration = ({ plan }) => {
     });
 
     const [mapStyle, setMapStyle] = useState('voyager'); // 'voyager' or 'satellite'
+    const [show3D, setShow3D] = useState(false);
 
     const [markers, setMarkers] = useState([]);
+    const [routes, setRoutes] = useState([]);
     const [isLoadingPOIs, setIsLoadingPOIs] = useState(false);
+    const [selectedDay, setSelectedDay] = useState('all');
 
     // Custom Icons Helper
     const createCustomIcon = (icon) => {
@@ -111,7 +114,6 @@ const MapExploration = ({ plan }) => {
 
     // --- REAL-TIME POI FETCHING (Overpass API) ---
     useEffect(() => {
-<<<<<<< HEAD
         if (isSearching) return; // Wait for geocoding to settle
 
         const fetchPOIs = async () => {
@@ -159,52 +161,55 @@ const MapExploration = ({ plan }) => {
                         phone: el.tags.phone || el.tags['contact:phone'],
                         hours: el.tags.opening_hours
                     };
-=======
-        if (!plan) return;
-
-        const newMarkers = [];
-
-        // 1. Places (from Itinerary) - REAL COORDINATES
-        if (plan.itinerary) {
-            plan.itinerary.forEach((day, dIdx) => {
-                const dayActivities = [
-                    { ...day.morning, timeLabel: 'Morning' },
-                    { ...day.afternoon, timeLabel: 'Afternoon' },
-                    { ...day.evening, timeLabel: 'Evening' }
-                ].filter(a => a.title && a.coords);
-
-                dayActivities.forEach((act, aIdx) => {
-                    newMarkers.push({
-                        id: `act-${dIdx}-${aIdx}`,
-                        type: 'places',
-                        position: [act.coords.lat, act.coords.lng],
-                        title: act.title,
-                        desc: `${act.timeLabel} • ${act.type} • ${act.cost}`
-                    });
->>>>>>> 2a50520d9487c2e4b0d9f049090e4158090e835f
                 });
 
-<<<<<<< HEAD
                 // Add Itinerary Items from Plan
                 const planMarkers = [];
+                const planRoutes = [];
+
                 if (plan && plan.itinerary) {
                     plan.itinerary.forEach((day, dIdx) => {
                         const dayActivities = [day.morning, day.afternoon, day.evening].filter(Boolean);
+                        const dayPath = [];
+
                         dayActivities.forEach((act, aIdx) => {
-                            // Since we don't have exact lat/lon for itinerary items yet, 
-                            // we place them in a small cluster around the center
+                            let pos;
+                            if (act.coords) {
+                                // If coordination is relative (offset from destination)
+                                if (Math.abs(act.coords.lat) < 1 && Math.abs(act.coords.lng) < 1) {
+                                    pos = [mapCenter[0] + act.coords.lat, mapCenter[1] + act.coords.lng];
+                                } else {
+                                    // Absolute coordinates
+                                    pos = [act.coords.lat, act.coords.lng];
+                                }
+                            } else {
+                                // Fallback to random cluster only if no coords exist
+                                pos = [mapCenter[0] + (Math.random() - 0.5) * 0.01, mapCenter[1] + (Math.random() - 0.5) * 0.01];
+                            }
+
+                            dayPath.push(pos);
                             planMarkers.push({
                                 id: `plan-${dIdx}-${aIdx}`,
+                                day: day.day,
                                 type: 'places',
-                                position: [mapCenter[0] + (Math.random() - 0.5) * 0.01, mapCenter[1] + (Math.random() - 0.5) * 0.01],
+                                position: pos,
                                 title: `⭐ ${act.title}`,
                                 desc: `${t('day')} ${day.day} • ${act.time}`
                             });
                         });
+
+                        if (dayPath.length > 1) {
+                            planRoutes.push({
+                                day: day.day,
+                                path: dayPath,
+                                color: day.day % 2 === 0 ? 'var(--primary)' : '#3B82F6'
+                            });
+                        }
                     });
                 }
 
                 setMarkers([...planMarkers, ...newMarkers]);
+                setRoutes(planRoutes);
             } catch (error) {
                 console.error("Overpass API error:", error);
             } finally {
@@ -215,64 +220,18 @@ const MapExploration = ({ plan }) => {
         const timeoutId = setTimeout(fetchPOIs, 800); // Debounce
         return () => clearTimeout(timeoutId);
     }, [mapCenter, isSearching, plan]);
-=======
-        // 2. Food Spots - REAL COORDINATES
-        if (plan.localIntelligence?.food?.restaurants) {
-            plan.localIntelligence.food.restaurants.forEach((rest, i) => {
-                if (rest.coords) {
-                    newMarkers.push({
-                        id: `food-${i}`,
-                        type: 'food',
-                        position: [rest.coords.lat, rest.coords.lng],
-                        title: rest.name,
-                        desc: `${rest.type} • ${rest.price}`
-                    });
-                }
-            });
-        }
-
-        // 3. Transport Hubs - REAL COORDINATES
-        if (plan.localIntelligence?.transport?.hubs) {
-            plan.localIntelligence.transport.hubs.forEach((hub, i) => {
-                if (hub.coords) {
-                    newMarkers.push({
-                        id: `trans-${i}`,
-                        type: 'transport',
-                        position: [hub.coords.lat, hub.coords.lng],
-                        title: hub.name,
-                        desc: t('transportHub') || 'Public Transport Hub'
-                    });
-                }
-            });
-        }
-
-        // 4. Fallback/Extra Layers (Rental & Emergency) - Keep randomized around center if AI doesn't provide
-        const extraCategories = ['rental', 'emergency'];
-        extraCategories.forEach(cat => {
-            const items = cat === 'rental'
-                ? [{ name: "City Bike Share", desc: "Eco-friendly Transit" }]
-                : [{ name: "Central Hospital", desc: "Emergency Care" }];
-
-            items.forEach((item, i) => {
-                newMarkers.push({
-                    id: `${cat}-${i}`,
-                    type: cat,
-                    position: [mapCenter[0] + (Math.random() - 0.5) * 0.05, mapCenter[1] + (Math.random() - 0.5) * 0.05],
-                    title: item.name,
-                    desc: item.desc
-                });
-            });
-        });
-
-        setMarkers(newMarkers);
-    }, [plan, mapCenter, t]);
->>>>>>> 2a50520d9487c2e4b0d9f049090e4158090e835f
 
     const toggleLayer = (layer) => {
         setActiveLayers(prev => ({ ...prev, [layer]: !prev[layer] }));
     };
 
-    const visibleMarkers = markers.filter(m => activeLayers[m.type]);
+    const visibleMarkers = markers.filter(m => {
+        if (!activeLayers[m.type]) return false;
+        if (m.day && selectedDay !== 'all' && m.day !== parseInt(selectedDay)) return false;
+        return true;
+    });
+
+    const visibleRoutes = routes.filter(r => selectedDay === 'all' || r.day === parseInt(selectedDay));
 
     return (
         <div className="map-exploration-container card" style={{ padding: 0, overflow: 'hidden', height: '500px', display: 'flex', flexDirection: 'column' }}>
@@ -281,6 +240,26 @@ const MapExploration = ({ plan }) => {
                     <MapPin size={20} color="var(--primary)" /> {t('mapExploration')}
                 </h3>
                 <div className="layer-toggles" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <select
+                        value={selectedDay}
+                        onChange={(e) => setSelectedDay(e.target.value)}
+                        style={{
+                            padding: '0.4rem 0.8rem',
+                            borderRadius: '50px',
+                            border: '1px solid var(--border-light)',
+                            background: 'white',
+                            fontSize: '0.8rem',
+                            cursor: 'pointer',
+                            outline: 'none',
+                            color: 'var(--primary)',
+                            fontWeight: 'bold'
+                        }}
+                    >
+                        <option value="all">All Days</option>
+                        {plan?.itinerary?.map(d => (
+                            <option key={d.day} value={d.day}>Day {d.day}</option>
+                        ))}
+                    </select>
                     <LayerToggle label={t('places')} icon={<MapPin size={14} />} active={activeLayers.places} onClick={() => toggleLayer('places')} />
                     <LayerToggle label={t('food')} icon={<Utensils size={14} />} active={activeLayers.food} onClick={() => toggleLayer('food')} />
                     <LayerToggle label={t('transport')} icon={<Bus size={14} />} active={activeLayers.transport} onClick={() => toggleLayer('transport')} />
@@ -290,9 +269,15 @@ const MapExploration = ({ plan }) => {
             </div>
 
             <div style={{ flex: 1, position: 'relative' }}>
-                <MapContainer center={mapCenter} zoom={14} style={{ height: '100%', width: '100%' }}>
+                <MapContainer
+                    center={mapCenter}
+                    zoom={14}
+                    style={{ height: '100%', width: '100%' }}
+                    zoomControl={false}
+                >
                     <RecenterMap center={mapCenter} />
                     <ScaleControl position="bottomleft" />
+                    <ZoomControl position="topright" />
 
                     {mapStyle === 'voyager' ? (
                         <TileLayer
@@ -312,6 +297,26 @@ const MapExploration = ({ plan }) => {
                             attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
                         />
                     )}
+
+                    {show3D && (
+                        <TileLayer
+                            url="https://{s}.tile.osmbuildings.org/tile/{z}/{x}/{y}.png"
+                            attribution='&copy; <a href="https://osmbuildings.org/copyright">OSM Buildings</a>'
+                            opacity={0.8}
+                        />
+                    )}
+
+                    {visibleRoutes.map((route, idx) => (
+                        <Polyline
+                            key={`route-${idx}`}
+                            positions={route.path}
+                            color={route.color}
+                            weight={5}
+                            opacity={0.7}
+                            dashArray="10, 10"
+                            className="animated-polyline"
+                        />
+                    ))}
                     {visibleMarkers.map(marker => (
                         <Marker
                             key={marker.id}
@@ -352,26 +357,42 @@ const MapExploration = ({ plan }) => {
                 </MapContainer>
 
                 {/* Floating Map Controls */}
-                <div style={{ position: 'absolute', top: '1rem', left: '1rem', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <div style={{ position: 'absolute', top: '1rem', left: '1rem', zIdex: 1000, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                     <button
                         onClick={() => setMapStyle(mapStyle === 'voyager' ? 'satellite' : 'voyager')}
-                        style={{
-                            background: 'white',
-                            border: 'none',
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '8px',
-                            boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'var(--primary)',
-                            transition: 'all 0.2s'
-                        }}
-                        title="Toggle Detailed View"
+                        style={controlButtonStyle}
+                        title="Toggle Imagery"
                     >
                         {mapStyle === 'voyager' ? <Globe size={20} /> : <Map size={20} />}
+                    </button>
+                    <button
+                        onClick={() => setShow3D(!show3D)}
+                        style={{
+                            ...controlButtonStyle,
+                            color: show3D ? 'white' : 'var(--primary)',
+                            background: show3D ? 'var(--primary)' : 'white'
+                        }}
+                        title="Toggle 3D Buildings"
+                    >
+                        <Box size={20} />
+                    </button>
+                    <button
+                        onClick={() => {
+                            const mapEl = document.querySelector('.map-exploration-container');
+                            if (document.fullscreenElement) document.exitFullscreen();
+                            else mapEl.requestFullscreen();
+                        }}
+                        style={controlButtonStyle}
+                        title="Fullscreen"
+                    >
+                        <Maximize2 size={20} />
+                    </button>
+                    <button
+                        onClick={() => setMapCenter(initialCenter)}
+                        style={controlButtonStyle}
+                        title="Locate Center"
+                    >
+                        <Crosshair size={20} />
                     </button>
                 </div>
 
@@ -379,12 +400,43 @@ const MapExploration = ({ plan }) => {
                 <div style={{ position: 'absolute', bottom: '1rem', right: '1rem', zIndex: 1000, background: 'rgba(255,255,255,0.9)', padding: '0.5rem 1rem', borderRadius: '4px', fontSize: '0.85rem', fontWeight: 'bold', boxShadow: '0 2px 5px rgba(0,0,0,0.1)', display: 'flex', alignItems: 'center', gap: '0.5rem', backdropFilter: 'blur(4px)' }}>
                     {isLoadingPOIs ? (
                         <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}>⏳</motion.div>
-                    ) : (mapStyle === 'satellite' ? '🛰️' : '🗺️')}
-                    {isLoadingPOIs ? 'Loading Detailed POIs...' : (mapStyle === 'satellite' ? 'Satellite View' : t('interactiveMap'))}
+                    ) : (mapStyle === 'satellite' ? '🛰️' : show3D ? '🏢' : '🗺️')}
+                    {isLoadingPOIs ? 'Loading Detailed POIs...' : (mapStyle === 'satellite' ? 'Satellite View' : show3D ? '3D Buildings' : t('interactiveMap'))}
                 </div>
             </div>
+            <style>{`
+                .animated-polyline {
+                    stroke-dasharray: 15, 15;
+                    animation: dash 20s linear infinite;
+                }
+                @keyframes dash {
+                    to {
+                        stroke-dashoffset: -1000;
+                    }
+                }
+                .control-btn:hover {
+                    transform: scale(1.1);
+                    background: #f8fafc;
+                }
+            `}</style>
         </div>
     );
+};
+
+const controlButtonStyle = {
+    background: 'white',
+    border: 'none',
+    width: '40px',
+    height: '40px',
+    borderRadius: '8px',
+    boxShadow: '0 2px 10px rgba(0,0,0,0.15)',
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: 'var(--primary)',
+    transition: 'all 0.2s',
+    zIndex: 1000
 };
 
 const LayerToggle = ({ label, icon, active, onClick }) => (
