@@ -516,6 +516,14 @@ input[type=range]::-webkit-slider-runnable-track {
   padding: 1.5rem;
   border-bottom: 1px solid var(--border-light);
   border-right: 1px solid transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.time-slot:hover {
+  background-color: var(--primary-light);
+  transform: scale(1.02);
+  z-index: 1;
 }
 
 @media (min-width: 768px) {
@@ -527,6 +535,95 @@ input[type=range]::-webkit-slider-runnable-track {
   .time-slot:last-child {
     border-right: none;
   }
+}
+
+/* --- Modal Styles --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  padding: 1.5rem;
+}
+
+.modal-content {
+  background: white;
+  width: 100%;
+  max-width: 500px;
+  border-radius: var(--radius-xl);
+  padding: 2.5rem;
+  position: relative;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--text-light);
+  transition: color 0.2s;
+}
+
+.modal-close:hover {
+  color: var(--danger);
+}
+
+.modal-title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: var(--secondary);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.detail-label {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: var(--text-light);
+  text-transform: uppercase;
+}
+
+.detail-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.warning-box {
+  background: #FFFBEB;
+  border-left: 4px solid var(--warning);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+}
+
+.warning-text {
+  font-size: 0.9rem;
+  color: #92400E;
+  font-weight: 500;
 }
 
 .slot-label {
@@ -605,4 +702,20 @@ input[type=range]::-webkit-slider-runnable-track {
 .regret-fill {
   height: 100%;
   background: #E11D48;
+}
+/* --- Print Styles --- */
+@media print {
+  .navbar, .btn, .sidebar, .trip-header button, .modal-overlay, .regret-box {
+    display: none !important;
+  }
+  body { background: white !important; padding: 0 !important; margin: 0 !important; }
+  .trip-header { height: auto !important; padding: 2rem 0 !important; background: white !important; color: #0F172A !important; border-bottom: 2px solid #4F46E5; position: static !important; }
+  .trip-header h1 { font-size: 2.5rem !important; margin: 0 !important; }
+  .container { width: 100% !important; max-width: none !important; padding: 0 !important; margin: 0 !important; }
+  .trip-grid { display: block !important; margin-top: 0 !important; }
+  .itinerary-list { width: 100% !important; }
+  .day-card { break-inside: avoid; box-shadow: none !important; border: 1px solid #E2E8F0 !important; margin-bottom: 2rem !important; }
+  .timeline-grid { display: grid !important; grid-template-columns: 1fr 1fr 1fr !important; }
+  .time-slot { border-right: 1px solid #E2E8F0 !important; padding: 1rem !important; }
+  .time-slot:last-child { border-right: none !important; }
 }

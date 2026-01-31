@@ -1,103 +1,178 @@
 const generateMockPlan = (data) => {
-    const { destination, startDate, endDate, partners, mood, budget, preferences } = data;
+    const { destination, startDate, endDate, partners, mood, budget, preferences, safety } = data;
+
+    if (!destination) {
+        throw new Error("Destination is required");
+    }
+    const dest = destination.toLowerCase().trim();
 
     // Helper: Random Array Item
     const rnd = (arr) => arr[Math.floor(Math.random() * arr.length)];
     const rndNum = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-    // --- ACTIVITY POOL BASED ON INTERESTS ---
-    const activityPool = {
-        'Foodie 🍜': [
-            { title: 'Street Food Walk', type: 'Food', cost: '$15', duration: '2h', regret: 'High' },
-            { title: 'Michelin Star Lunch', type: 'Food', cost: '$120', duration: '3h', regret: 'Medium' },
-            { title: 'Local Market Tasting', type: 'Food', cost: '$0', duration: '1.5h', regret: 'High' },
-            { title: 'Sunset Rooftop Drinks', type: 'Relax', cost: '$40', duration: '2h', regret: 'Low' }
+    // --- GLOBAL ACTIVITY POOL (FALLBACK) ---
+    const fallbackPool = {
+        'Morning 🌅': [
+            { title: 'Local Market Exploration', cost: 'Free', duration: '2h', opening: '08:00 AM', closing: '02:00 PM', holidays: 'None', warnings: 'Great for fresh produce and local vibes.' },
+            { title: 'Sunrise Lookout Hike', cost: 'Free', duration: '3h', opening: 'Dawn', closing: 'Dusk', holidays: 'None', warnings: 'Bring water and wear steady shoes.' },
+            { title: 'Traditional Breakfast Spot', cost: '$12', duration: '1h', opening: '07:00 AM', closing: '11:00 AM', holidays: 'None', warnings: 'Popular with locals; might have a short wait.' }
         ],
-        'History 🏛️': [
-            { title: 'Ancient Temple Tour', type: 'History', cost: '$10', duration: '3h', regret: 'Extreme' },
-            { title: 'National Museum Visit', type: 'History', cost: '$25', duration: '4h', regret: 'Medium' },
-            { title: 'Old Town Heritage Walk', type: 'History', cost: '$0', duration: '2h', regret: 'High' },
-            { title: 'Royal Palace Tour', type: 'History', cost: '$30', duration: '3h', regret: 'High' }
+        'Afternoon ☀️': [
+            { title: 'Central Park / Public Square', cost: 'Free', duration: '2.5h', opening: '24/7', closing: 'N/A', holidays: 'None', warnings: 'Good place for people watching.' },
+            { title: 'Regional Art Gallery', cost: '$15', duration: '3h', opening: '10:00 AM', closing: '06:00 PM', holidays: 'Mondays', warnings: 'No flash photography allowed.' },
+            { title: 'Hidden Alleyway Cafe', cost: '$10', duration: '1.5h', opening: '11:00 AM', closing: '08:00 PM', holidays: 'None', warnings: 'Cash only in most small spots.' }
         ],
-        'Nature 🌿': [
-            { title: 'Sunrise Mountain Hike', type: 'Nature', cost: '$0', duration: '4h', regret: 'Extreme' },
-            { title: 'Botanical Gardens', type: 'Relax', cost: '$15', duration: '2h', regret: 'Low' },
-            { title: 'Waterfall Trek', type: 'Adventure', cost: 'Var', duration: '5h', regret: 'High' },
-            { title: 'Scenic Lake Boat Ride', type: 'Relax', cost: '$20', duration: '1.5h', regret: 'Medium' }
-        ],
-        'Shopping 🛍️': [
-            { title: 'Luxury Mall Hop', type: 'Shopping', cost: 'Free', duration: '3h', regret: 'Low' },
-            { title: 'Local Artisan Bazaar', type: 'Shopping', cost: 'Free', duration: '2h', regret: 'Medium' },
-            { title: 'Vintage District Walk', type: 'Shopping', cost: 'Free', duration: '2.5h', regret: 'Low' }
-        ],
-        'Adventure 🏔️': [
-            { title: 'Zip-lining Adventure', type: 'Adventure', cost: '$80', duration: '3h', regret: 'High' },
-            { title: 'White Water Rafting', type: 'Adventure', cost: '$60', duration: '4h', regret: 'Extreme' },
-            { title: 'ATV Jungle Tour', type: 'Adventure', cost: '$100', duration: '2h', regret: 'Medium' }
-        ],
-        'Default': [
-            { title: `Explore ${destination} City Center`, type: 'Explore', cost: 'Free', duration: '3h', regret: 'Medium' },
-            { title: 'Famous Landmark Visit', type: 'Sightseeing', cost: '$20', duration: '2h', regret: 'High' },
-            { title: 'Relax at City Park', type: 'Relax', cost: 'Free', duration: '1h', regret: 'Low' }
+        'Evening 🌙': [
+            { title: 'Riverside Sunset Walk', cost: 'Free', duration: '1h', opening: 'N/A', closing: 'N/A', holidays: 'None', warnings: 'Arrive 20 mins early for the best glow.' },
+            { title: 'Cozy Neighborhood Bistro', cost: '$35', duration: '2h', opening: '06:00 PM', closing: '11:00 PM', holidays: 'None', warnings: 'Reservations recommended for weekends.' },
+            { title: 'Local Live Music Bar', cost: '$15', duration: '3h', opening: '08:00 PM', closing: '02:00 AM', holidays: 'None', warnings: 'Might get loud; great atmosphere.' }
         ]
     };
 
-    // Helper: Get relevant activity or fallback
-    const getActivity = (timeSlot) => {
-        // 50% chance to pick from user preferences, 50% random/default
-        // If no prefs, use default
-        let pool = activityPool['Default'];
-        if (preferences.length > 0 && Math.random() > 0.3) {
-            const pickedPref = rnd(preferences);
-            if (activityPool[pickedPref]) pool = activityPool[pickedPref];
-        } else if (mood === 'adventure' && Math.random() > 0.5) {
-            pool = activityPool['Adventure 🏔️'];
+    // --- REALISTIC LOCATION POOLS ---
+    const locationPools = {
+        'london': {
+            'Morning 🌅': [
+                { title: 'Tower of London Tour', cost: '£30', duration: '3h', opening: '09:00 AM', closing: '04:30 PM', holidays: 'Mondays (early)', warnings: 'Last entry is 3:30 PM.' },
+                { title: 'Sky Garden Views', cost: 'Free', duration: '1h', opening: '10:00 AM', closing: '06:00 PM', holidays: 'None', warnings: 'Must book free tickets 3 weeks ahead!' }
+            ],
+            'Afternoon ☀️': [
+                { title: 'Westminster Abbey', cost: '£31', duration: '2h', opening: '09:30 AM', closing: '03:30 PM', holidays: 'Sundays', warnings: 'Modest dress code (cover shoulders).' },
+                { title: 'Afternoon Tea Bus Tour', cost: '£49', duration: '1.5h', opening: 'Runs hourly', closing: 'N/A', holidays: 'None', warnings: 'Book in advance; great city views.' }
+            ],
+            'Evening 🌙': [
+                { title: 'The View from The Shard', cost: '£32', duration: '1.5h', opening: '10:00 AM', closing: '10:00 PM', holidays: 'None', warnings: 'Sunset slots sell out fast.' },
+                { title: 'West End Musical Show', cost: '£28+', duration: '2.5h', opening: '07:30 PM', closing: '10:00 PM', holidays: 'None', warnings: 'Check for matinee shows on weekends.' }
+            ]
+        },
+        'bali': {
+            'Morning 🌅': [
+                { title: 'Mount Batur Sunrise Hike', cost: 'IDR 400k', duration: '5h', opening: '02:00 AM', closing: 'N/A', holidays: 'Nyepi Day', warnings: 'Flashlight and warm jacket required.' },
+                { title: 'Tegalalang Rice Terraces', cost: '$5', duration: '2h', opening: '08:00 AM', closing: '06:00 PM', holidays: 'None', warnings: 'Prepare for many stairs and jungle heat.' }
+            ],
+            'Afternoon ☀️': [
+                { title: 'Sacred Monkey Forest', cost: '$6', duration: '2h', opening: '09:00 AM', closing: '05:00 PM', holidays: 'None', warnings: 'Do not bring food or loose items near monkeys.' },
+                { title: 'Uluwatu Temple Visit', cost: '$3', duration: '1.5h', opening: '07:00 AM', closing: '07:00 PM', holidays: 'None', warnings: 'Breathtaking cliffside views.' }
+            ],
+            'Evening 🌙': [
+                { title: 'Kecak Fire Dance Show', cost: '$10', duration: '1h', opening: '06:00 PM', closing: '07:00 PM', holidays: 'None', warnings: 'Shows are timed with the sunset.' },
+                { title: 'Seafood Dinner in Jimbaran', cost: '$30', duration: '2h', opening: '05:00 PM', closing: '11:00 PM', holidays: 'None', warnings: 'Dine right on the sand by the ocean.' }
+            ]
+        },
+        'dubai': {
+            'Morning 🌅': [
+                { title: 'At The Top - Burj Khalifa', cost: 'AED 159', duration: '2h', opening: '08:00 AM', closing: '12:00 AM', holidays: 'None', warnings: 'Sunrise slots at 5 AM available.' },
+                { title: 'Old Dubai Abra Ride', cost: 'AED 2', duration: '1h', opening: '05:00 AM', closing: '12:00 AM', holidays: 'None', warnings: 'Traditional wooden boat across the creek.' }
+            ],
+            'Afternoon ☀️': [
+                { title: 'The Dubai Mall & Aquarium', cost: 'Free/AED 169', duration: '4h', opening: '10:00 AM', closing: '11:00 PM', holidays: 'None', warnings: 'Wear walking shoes; largest mall globally.' },
+                { title: 'Ski Dubai Snow Classic', cost: '$73', duration: '3h', opening: '10:00 AM', closing: '11:00 PM', holidays: 'None', warnings: 'Winter gear provided in the desert!' }
+            ],
+            'Evening 🌙': [
+                { title: 'Dubai Fountain Show', cost: 'Free', duration: '1h', opening: '06:00 PM', closing: '11:00 PM', holidays: 'None', warnings: 'Shows run every 30 minutes.' },
+                { title: 'Dhow Cruise Dinner', cost: 'AED 250', duration: '2h', opening: '08:00 PM', closing: '10:00 PM', holidays: 'None', warnings: 'Stunning skyline views from the water.' }
+            ]
+        },
+        'rome': {
+            'Morning 🌅': [
+                { title: 'Colosseum & Roman Forum', cost: '€18', duration: '3h', opening: '08:30 AM', closing: '07:00 PM', holidays: 'None', warnings: 'Book weeks in advance for skip-the-line.' },
+                { title: 'Vatican Museums', cost: '€17', duration: '4h', opening: '09:00 AM', closing: '06:00 PM', holidays: 'Sundays', warnings: 'Includes Sistine Chapel; strict dress code.' }
+            ],
+            'Afternoon ☀️': [
+                { title: 'Pantheon & Trevi Fountain', cost: 'Free', duration: '2h', opening: '09:00 AM', closing: '07:00 PM', holidays: 'None', warnings: 'Toss a coin into the Trevi for good luck!' },
+                { title: 'Villa Borghese Gardens', cost: 'Free', duration: '2h', opening: 'Dawn', closing: 'Dusk', holidays: 'None', warnings: 'Rent a rowboat on the artificial lake.' }
+            ],
+            'Evening 🌙': [
+                { title: 'Dinner in Trastevere', cost: '€40', duration: '2.5h', opening: '07:30 PM', closing: '11:30 PM', holidays: 'None', warnings: 'Most authentic Roman food scene.' },
+                { title: 'Castel Sant’Angelo At Night', cost: '€12', duration: '2h', opening: '09:00 AM', closing: '12:00 AM', holidays: 'Mondays', warnings: 'Spectacular views of St. Peter’s Basilica.' }
+            ]
+        },
+        'paris': {
+            'Morning 🌅': [
+                { title: 'Eiffel Tower Summit', cost: '€28', duration: '2h', opening: '09:30 AM', closing: '11:45 PM', holidays: 'None', warnings: 'Avoid illegal street vendors at the base.' },
+                { title: 'Louvre Museum Highlights', cost: '€22', duration: '3h', opening: '09:00 AM', closing: '06:00 PM', holidays: 'Tuesdays', warnings: 'Entry via Pyramid is busiest; try Carrousel entrance.' }
+            ],
+            'Afternoon ☀️': [
+                { title: 'Sacré-Cœur & Montmartre', cost: 'Free', duration: '2.5h', opening: '06:00 AM', closing: '10:30 PM', holidays: 'None', warnings: 'Steep hill; beware of "bracelet sellers".' },
+                { title: 'Seine River Cruise', cost: '€16', duration: '1h', opening: '10:00 AM', closing: '10:30 PM', holidays: 'None', warnings: 'Best views during the "Blue Hour" before dusk.' }
+            ],
+            'Evening 🌙': [
+                { title: 'Moulin Rouge Cabaret', cost: '€120', duration: '2.5h', opening: '09:00 PM', closing: '11:30 PM', holidays: 'None', warnings: 'Formal attire recommended; book months out.' }
+            ]
+        },
+        'tokyo': {
+            'Morning 🌅': [
+                { title: 'Tsukiji Fish Market', cost: 'Free/Food', duration: '2h', opening: '05:00 AM', closing: '02:00 PM', holidays: 'Sundays', warnings: 'Wear closed-toe shoes; inner market is early only.' }
+            ],
+            'Afternoon ☀️': [
+                { title: 'Shibuya Crossing & Hachiko', cost: 'Free', duration: '1h', opening: 'Always Open', closing: 'N/A', holidays: 'None', warnings: 'Great views from the Starbucks upstairs.' }
+            ],
+            'Evening 🌙': [
+                { title: 'Shinjuku Golden Gai Drinks', cost: 'Var', duration: '3h', opening: '07:00 PM', closing: '04:00 AM', holidays: 'None', warnings: 'Tiny bars; many have cover charges.' }
+            ]
+        }
+    };
+
+    // Helper: Build a day's slot
+    const getSlot = (location, slotName) => {
+        let pool = fallbackPool[slotName];
+
+        // Match specific location data if available
+        if (locationPools[dest] && locationPools[dest][slotName]) {
+            pool = [...pool, ...locationPools[dest][slotName]];
         }
 
         const act = rnd(pool);
+        const regretLevels = ['Low', 'Medium', 'High', 'Extreme'];
+        const pickedRegret = rnd(regretLevels);
 
         return {
             title: act.title,
-            type: act.type,
-            time: timeSlot,
+            type: act.type || 'Experience',
+            time: slotName.split(' ')[0], // Morning, Afternoon, etc.
             duration: act.duration,
             travelTime: `${rndNum(10, 45)} mins`,
             cost: act.cost,
-            hours: '09:00 AM - 06:00 PM',
-            safeToSkip: act.regret === 'Low',
-            regretProb: act.regret === 'Extreme' ? '95%' : act.regret === 'High' ? '80%' : act.regret === 'Medium' ? '40%' : '10%'
+            opening: act.opening,
+            closing: act.closing,
+            holidays: act.holidays,
+            warnings: act.warnings,
+            safeToSkip: pickedRegret === 'Low',
+            regretProb: pickedRegret === 'Extreme' ? '95%' : pickedRegret === 'High' ? '85%' : pickedRegret === 'Medium' ? '45%' : '10%'
         };
     };
 
     // --- GENERATE DAYS ---
     const days = [];
-    for (let i = 1; i <= 3; i++) {
+    const tripLength = 3; // Mocking 3 days
+    for (let i = 1; i <= tripLength; i++) {
         days.push({
             day: i,
             date: new Date(new Date(startDate).getTime() + (i - 1) * 86400000).toDateString(),
-            weather: rnd(['Sunny ☀️', 'Clear 🌤️', 'Breezy 🍃']),
-            morning: getActivity('Morning'),
-            afternoon: getActivity('Afternoon'),
-            evening: getActivity('Evening')
+            weather: rnd(['Sunny ☀️', 'Clear 🌤️', 'Breezy 🍃', 'Partly Cloudy ⛅']),
+            morning: getSlot(dest, 'Morning 🌅'),
+            afternoon: getSlot(dest, 'Afternoon ☀️'),
+            evening: getSlot(dest, 'Evening 🌙')
         });
     }
 
-    // --- BUDGET CALC ---
     const budgetLevel = budget === 1 ? 'Budget' : budget === 2 ? 'Moderate' : 'Luxury';
     const dailyCost = budget === 1 ? 80 : budget === 2 ? 180 : 450;
 
     return {
+        tripName: `${mood.charAt(0).toUpperCase() + mood.slice(1)} Trip to ${destination}`,
         destination,
         dates: `${startDate} to ${endDate}`,
         travelers: partners,
         vibe: mood,
         budgetSummary: {
-            total: dailyCost * 3 * (partners === 'Solo' ? 1 : 2),
-            perPerson: dailyCost * 3,
+            total: dailyCost * tripLength * (partners === 'Solo' ? 1 : 2),
+            perPerson: dailyCost * tripLength,
             level: budgetLevel,
+            currency: 'USD'
         },
         itinerary: days,
-        highlights: preferences.length > 0 ? preferences : ['Culture', 'Relaxation', 'Food']
+        highlights: preferences && preferences.length > 0 ? preferences : ['Culture', 'Sightseeing', 'Relaxation']
     };
 };
 
