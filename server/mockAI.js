@@ -97,13 +97,18 @@ const generateMockPlan = (data) => {
         return match ? parseInt(match[0]) : 0;
     };
 
+    // --- CALCULATE DURATION ---
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const numDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
     // --- GENERATE DAYS ---
     const days = [];
-    const tripLength = 3;
     let totalActivityCost = 0;
     const dayWiseActivityCosts = [];
 
-    for (let i = 1; i <= tripLength; i++) {
+    for (let i = 1; i <= numDays; i++) {
         const morning = getSlot(dest, 'Morning');
         const afternoon = getSlot(dest, 'Afternoon');
         const evening = getSlot(dest, 'Evening');
@@ -114,7 +119,7 @@ const generateMockPlan = (data) => {
 
         days.push({
             day: i,
-            date: new Date(new Date(startDate).getTime() + (i - 1) * 86400000).toDateString(),
+            date: new Date(start.getTime() + (i - 1) * 86400000).toDateString(),
             weather: rnd(['Sunny ☀️', 'Clear 🌤️', 'Breezy 🍃', 'Partly Cloudy ⛅']),
             morning,
             afternoon,

@@ -34,6 +34,13 @@ app.post('/api/generate-plan', (req, res) => {
 
 const server = app.listen(PORT, () => {
     console.log(`Server running on http://localhost:${PORT}`);
+}).on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+        console.error(`Port ${PORT} is already in use. Please kill the process or use a different port.`);
+        process.exit(1);
+    } else {
+        console.error("Server error:", err);
+    }
 });
 
 server.on('error', (err) => {
