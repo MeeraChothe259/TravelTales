@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { MapPin, Calendar, Users, Smile, Wallet, Heart, AlertTriangle, Shield, Check } from 'lucide-react';
+import { Check, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Onboarding = () => {
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
     const [formData, setFormData] = useState({
         destination: '',
         startDate: '',
@@ -33,20 +34,45 @@ const Onboarding = () => {
         });
     };
 
+    const handleGenerate = async () => {
+        if (!formData.destination || !formData.startDate || !formData.endDate) {
+            alert("Please fill in the basics (Destination & Dates)!");
+            return;
+        }
+
+        setIsLoading(true);
+        try {
+            const response = await fetch('http://localhost:5000/api/generate-plan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                navigate('/trip', { state: { plan: data.plan } });
+            } else {
+                alert("Failed to generate plan. Please try again.");
+            }
+        } catch (error) {
+            console.error("Error:", error);
+            alert("Something went wrong. Is the server running?");
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <div className="onboarding-container">
-            <header className="section-header">
-                <h1>Let's Plan Your Trip ✈️</h1>
+            <header className="text-center" style={{ marginBottom: '3rem' }}>
+                <h2>Let's Plan Your Trip ✈️</h2>
                 <p>Tell us a bit about your travel plans so AI can work its magic.</p>
             </header>
 
-            <div className="max-w-3xl mx-auto">
+            <div className="input-container">
                 {/* Card 1: Destination */}
-                <InputCard
-                    number="1"
-                    title="Where to?"
-                    subtitle="City, Region, or Country"
-                >
+                <InputCard number="1" title="Where to?" subtitle="City, Region, or Country">
                     <input
                         type="text"
                         placeholder="e.g., Kyoto, Japan"
@@ -56,15 +82,11 @@ const Onboarding = () => {
                     />
                 </InputCard>
 
-                {/* Card 2: Travel Dates */}
-                <InputCard
-                    number="2"
-                    title="When are you going?"
-                    subtitle="We'll check for weekends, festivals, & peak seasons."
-                >
-                    <div className="flex flex-col md:flex-row gap-4">
-                        <div className="flex-1">
-                            <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">Start Date</label>
+                {/* Card 2: Dates */}
+                <InputCard number="2" title="When are you going?" subtitle="We'll check for weekends & festivals.">
+                    <div className="flex gap-4" style={{ flexDirection: 'column' }}>
+                        <div className="w-full">
+                            <label style={{ fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'block', color: 'var(--text-light)' }}>Start Date</label>
                             <input
                                 type="date"
                                 className="input-field"
@@ -72,8 +94,8 @@ const Onboarding = () => {
                                 onChange={(e) => handleInputChange('startDate', e.target.value)}
                             />
                         </div>
-                        <div className="flex-1">
-                            <label className="text-xs font-bold text-gray-500 uppercase mb-2 block">End Date</label>
+                        <div className="w-full">
+                            <label style={{ fontSize: '0.8rem', fontWeight: 'bold', textTransform: 'uppercase', marginBottom: '0.5rem', display: 'block', color: 'var(--text-light)' }}>End Date</label>
                             <input
                                 type="date"
                                 className="input-field"
@@ -84,12 +106,8 @@ const Onboarding = () => {
                     </div>
                 </InputCard>
 
-                {/* Card 3: Travel Partners */}
-                <InputCard
-                    number="3"
-                    title="Who's coming with you?"
-                    subtitle="This helps us suggest safe & fun activities."
-                >
+                {/* Card 3: Partners */}
+                <InputCard number="3" title="Who's coming with you?" subtitle="Helps suggest activities.">
                     <div className="selection-grid">
                         {['Solo', 'Couple', 'Friends', 'Family', 'Seniors', 'Girls Trip'].map(type => (
                             <SelectableCard
@@ -103,16 +121,11 @@ const Onboarding = () => {
                 </InputCard>
 
                 {/* Card 4: Mood */}
-                <InputCard
-                    number="4"
-                    title="What's the vibe?"
-                    subtitle="Personalize your itinerary style."
-                >
+                <InputCard number="4" title="What's the vibe?" subtitle="Personalize your style.">
                     <div className="selection-grid">
                         {[
                             { label: 'Chill 😌', value: 'chill' },
                             { label: 'Adventure 🏔️', value: 'adventure' },
-                            { label: 'Spiritual 🛕', value: 'spiritual' },
                             { label: 'Party 🎉', value: 'party' },
                             { label: 'Romantic ❤️', value: 'romantic' },
                             { label: 'Exploration 🌍', value: 'exploration' }
@@ -128,12 +141,8 @@ const Onboarding = () => {
                 </InputCard>
 
                 {/* Card 5: Budget */}
-                <InputCard
-                    number="5"
-                    title="Budget Preference"
-                    subtitle="Are we saving or splurging?"
-                >
-                    <div className="px-2 mb-6">
+                <InputCard number="5" title="Budget Preference" subtitle="Saving or Splurging?">
+                    <div style={{ padding: '0 1rem' }}>
                         <input
                             type="range"
                             min="1"
@@ -141,41 +150,18 @@ const Onboarding = () => {
                             step="1"
                             value={formData.budget}
                             onChange={(e) => handleInputChange('budget', parseInt(e.target.value))}
-                        // The CSS for this is now handled by input[type=range] gloablly
                         />
-                        <div className="flex justify-between mt-3 text-sm font-bold text-gray-600">
-                            <span className={formData.budget === 1 ? "text-indigo-600" : ""}>$ Low</span>
-                            <span className={formData.budget === 2 ? "text-indigo-600" : ""}>$$ Medium</span>
-                            <span className={formData.budget === 3 ? "text-indigo-600" : ""}>$$$ Premium</span>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
-                        <span className="text-sm font-medium text-gray-700">Split Bill?</span>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={() => handleInputChange('budgetSplit', 'equal')}
-                                className={`split-btn ${formData.budgetSplit === 'equal' ? 'active' : ''}`}
-                            >
-                                Equal
-                            </button>
-                            <button
-                                onClick={() => handleInputChange('budgetSplit', 'custom')}
-                                className={`split-btn ${formData.budgetSplit === 'custom' ? 'active' : ''}`}
-                            >
-                                Custom
-                            </button>
+                        <div className="flex justify-between" style={{ marginTop: '1rem', fontSize: '0.9rem', fontWeight: 'bold', color: 'var(--text-muted)' }}>
+                            <span style={{ color: formData.budget === 1 ? 'var(--primary)' : '' }}>$ Low</span>
+                            <span style={{ color: formData.budget === 2 ? 'var(--primary)' : '' }}>$$ Medium</span>
+                            <span style={{ color: formData.budget === 3 ? 'var(--primary)' : '' }}>$$$ Premium</span>
                         </div>
                     </div>
                 </InputCard>
 
-                {/* Card 6: Preferences */}
-                <InputCard
-                    number="6"
-                    title="Interests"
-                    subtitle="Select all that apply."
-                >
-                    <div className="flex flex-wrap gap-2">
+                {/* Card 6: Interests */}
+                <InputCard number="6" title="Interests" subtitle="Select all that apply.">
+                    <div className="flex" style={{ flexWrap: 'wrap', gap: '0.5rem' }}>
                         {['Foodie 🍜', 'Shopping 🛍️', 'Nature 🌿', 'History 🏛️', 'Nightlife 🌃', 'Photography 📸', 'Art 🎨', 'Hidden Gems 💎'].map(pref => (
                             <FilterChip
                                 key={pref}
@@ -188,11 +174,7 @@ const Onboarding = () => {
                 </InputCard>
 
                 {/* Card 7: Constraints */}
-                <InputCard
-                    number="7"
-                    title="Constraints"
-                    subtitle="Any limitations we should know about?"
-                >
+                <InputCard number="7" title="Constraints" subtitle="Any limitations?">
                     <div className="flex flex-col gap-2">
                         {['Limited Walking', 'No Early Mornings', 'Avoid Crowds', 'Dietary Restrictions'].map(item => (
                             <CheckboxItem
@@ -205,31 +187,20 @@ const Onboarding = () => {
                     </div>
                 </InputCard>
 
-                {/* Card 8: Safety */}
-                <InputCard
-                    number="8"
-                    title="Safety & Comfort"
-                    subtitle="Prioritize your peace of mind."
-                >
-                    <div className="flex flex-col gap-2">
-                        {['Safe Areas Only', 'Women-Friendly', 'Near Medical Facilities', 'Need Emergency Contacts'].map(item => (
-                            <CheckboxItem
-                                key={item}
-                                label={item}
-                                checked={formData.safety.includes(item)}
-                                onChange={() => toggleSelection('safety', item)}
-                            />
-                        ))}
-                    </div>
-                </InputCard>
-
-                <div className="pt-8 flex justify-center pb-12">
+                <div className="flex justify-center" style={{ marginTop: '3rem' }}>
                     <button
                         className="btn btn-primary"
                         style={{ padding: '1rem 3rem', fontSize: '1.2rem' }}
-                        onClick={() => console.log('Generating Plan...', formData)}
+                        onClick={handleGenerate}
+                        disabled={isLoading}
                     >
-                        ✨ Generate My Plan
+                        {isLoading ? (
+                            <>
+                                <Loader2 className="animate-spin" size={20} /> Generating...
+                            </>
+                        ) : (
+                            '✨ Generate My Plan'
+                        )}
                     </button>
                 </div>
             </div>
@@ -242,19 +213,17 @@ const InputCard = ({ number, title, subtitle, children }) => (
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-50px" }}
-        transition={{ duration: 0.5 }}
-        className="form-card"
+        className="card"
+        style={{ marginBottom: '2rem' }}
     >
-        <div className="card-header">
-            <div className="step-number">{number}</div>
+        <div className="flex items-center gap-4" style={{ marginBottom: '1.5rem' }}>
+            <div className="form-step-number">{number}</div>
             <div>
                 <h3>{title}</h3>
-                <p className="text-sm text-gray-500">{subtitle}</p>
+                <p style={{ margin: 0, fontSize: '0.9rem' }}>{subtitle}</p>
             </div>
         </div>
-        <div className="input-group">
-            {children}
-        </div>
+        <div style={{ marginLeft: '3.5rem' }}>{children}</div>
     </motion.div>
 );
 
@@ -268,21 +237,21 @@ const SelectableCard = ({ label, selected, onClick }) => (
 );
 
 const FilterChip = ({ label, selected, onClick }) => (
-    <button
+    <div
         onClick={onClick}
         className={`chip ${selected ? 'selected' : ''}`}
     >
         {label}
-    </button>
+    </div>
 );
 
 const CheckboxItem = ({ label, checked, onChange }) => (
     <div
         onClick={onChange}
-        className={`checkbox-item ${checked ? 'checked' : ''}`}
+        className={`checkbox-row ${checked ? 'checked' : ''}`}
     >
-        <div className="checkbox-box">
-            {checked && <Check size={14} color="white" strokeWidth={4} />}
+        <div className="custom-checkbox">
+            {checked && <Check size={14} strokeWidth={4} />}
         </div>
         <span>{label}</span>
     </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Plane, Map, Users, Wallet, ArrowRight, Sparkles, Compass, Heart } from 'lucide-react';
+import { Plane, Users, Wallet, ArrowRight, Sparkles, Compass, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const LandingPage = () => {
@@ -10,14 +10,11 @@ const LandingPage = () => {
         <div className="landing-page">
             {/* Navbar */}
             <nav className="navbar">
-                <div className="container nav-container">
-                    <div className="brand">
-                        <Plane className="text-indigo-600" size={28} />
+                <div className="container flex justify-between items-center w-full">
+                    <div className="logo">
+                        <Plane size={28} />
                         TravelTales
                     </div>
-                    <button className="btn btn-secondary">
-                        Sign In
-                    </button>
                 </div>
             </nav>
 
@@ -31,14 +28,14 @@ const LandingPage = () => {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ duration: 0.6 }}
                         >
-                            <span className="hero-badge">
+                            <span className="badge" style={{ display: 'inline-block', padding: '0.5rem 1rem', background: '#EEF2FF', color: '#4F46E5', borderRadius: '50px', fontWeight: 'bold', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
                                 ✨ AI-Powered Travel Planning
                             </span>
                             <h1>
                                 Plan smarter. Travel happier. <br />
                                 <span className="text-gradient">Let AI handle the chaos.</span>
                             </h1>
-                            <p className="hero-subtitle">
+                            <p style={{ fontSize: '1.2rem', maxWidth: '600px', marginBottom: '2rem' }}>
                                 Say goodbye to travel stress. Get personalized itineraries, real-time budget tracking, and crowd forecasts in seconds.
                             </p>
                             <div className="flex gap-4">
@@ -61,49 +58,20 @@ const LandingPage = () => {
                             transition={{ duration: 0.8 }}
                         >
                             <img
-                                src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2021&q=80"
+                                src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?ixlib=rb-4.0.3&auto=format&fit=crop&w=2021&q=80"
                                 alt="Travel"
-                                className="hero-main-img"
+                                className="hero-image"
+                                style={{ width: '100%', borderRadius: '24px', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)', transform: 'rotate(2deg)' }}
                             />
-
-                            {/* Floating Widget 1 */}
-                            <motion.div
-                                className="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-lg border border-gray-100 flex items-center gap-3"
-                                animate={{ y: [0, -10, 0] }}
-                                transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-                            >
-                                <div className="p-2 bg-green-100 text-green-600 rounded-lg">
-                                    <Wallet size={20} />
-                                </div>
-                                <div>
-                                    <div className="text-xs text-gray-500 font-bold uppercase">Budget</div>
-                                    <div className="text-sm font-bold text-gray-900">On Track</div>
-                                </div>
-                            </motion.div>
-
-                            {/* Floating Widget 2 */}
-                            <motion.div
-                                className="absolute top-10 -right-6 bg-white p-4 rounded-xl shadow-lg border border-gray-100 flex items-center gap-3"
-                                animate={{ y: [0, 10, 0] }}
-                                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                            >
-                                <div className="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
-                                    <Users size={20} />
-                                </div>
-                                <div>
-                                    <div className="text-xs text-gray-500 font-bold uppercase">Crowd Level</div>
-                                    <div className="text-sm font-bold text-gray-900">Low Traffic</div>
-                                </div>
-                            </motion.div>
                         </motion.div>
                     </div>
                 </div>
             </section>
 
             {/* Features Section */}
-            <section className="features-section">
+            <section className="section" style={{ background: '#F8FAFC' }}>
                 <div className="container">
-                    <div className="section-header">
+                    <div className="text-center" style={{ maxWidth: '700px', margin: '0 auto 4rem auto' }}>
                         <h2>Everything you need for the perfect trip</h2>
                         <p>We combine advanced AI with local insights to create the perfect travel experience tailored just for you.</p>
                     </div>
@@ -134,13 +102,13 @@ const LandingPage = () => {
             </section>
 
             {/* Footer */}
-            <footer className="footer">
-                <div className="container">
-                    <div className="flex justify-center items-center gap-2 mb-4 opacity-70">
-                        <Plane size={24} className="text-indigo-600" />
-                        <span className="font-bold text-gray-900">TravelTales</span>
+            <footer className="section" style={{ padding: '2rem 0', borderTop: '1px solid #E2E8F0', background: 'white' }}>
+                <div className="container text-center">
+                    <div className="flex justify-center items-center gap-2" style={{ marginBottom: '1rem', opacity: 0.8 }}>
+                        <Plane size={24} color="#4F46E5" />
+                        <span style={{ fontWeight: 800 }}>TravelTales</span>
                     </div>
-                    <p>&copy; {new Date().getFullYear()} TravelTales. Built with AI & <Heart size={14} className="inline text-red-500" fill="currentColor" />.</p>
+                    <p style={{ fontSize: '0.9rem' }}>&copy; {new Date().getFullYear()} TravelTales. Built with AI & <Heart size={14} style={{ display: 'inline', color: '#EF4444' }} fill="currentColor" />.</p>
                 </div>
             </footer>
         </div>
@@ -148,12 +116,12 @@ const LandingPage = () => {
 };
 
 const FeatureCard = ({ icon, title, desc }) => (
-    <div className="feature-card">
-        <div className="feature-icon">
+    <div className="card">
+        <div className="feature-icon-box">
             {icon}
         </div>
-        <h3 className="feature-title">{title}</h3>
-        <p>{desc}</p>
+        <h3>{title}</h3>
+        <p style={{ fontSize: '0.95rem' }}>{desc}</p>
     </div>
 );
 
