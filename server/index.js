@@ -1,6 +1,7 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const { generateMockPlan } = require('./mockAI');
+const { generateMockPlan, handleChatResponse } = require('./mockAI');
 
 const app = express();
 const PORT = 5000;
@@ -14,6 +15,19 @@ app.get('/', (req, res) => {
 });
 
 // Routes
+app.post('/api/chat', async (req, res) => {
+    try {
+        const { message } = req.body;
+        console.log("Chat Request:", message);
+
+        const reply = await handleChatResponse(message);
+        res.json({ reply });
+    } catch (error) {
+        console.error("Chat Error:", error);
+        res.status(500).json({ success: false, message: "AI Assistant is resting..." });
+    }
+});
+
 app.post('/api/generate-plan', (req, res) => {
     try {
         const formData = req.body;

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import LandingPage from './LandingPage';
 import Onboarding from './Onboarding';
 import TripPlan from './TripPlan';
+import TravelChatbot from './TravelChatbot';
 
 function App() {
   return (
@@ -12,6 +13,7 @@ function App() {
         <Route path="/plan" element={<Onboarding />} />
         <Route path="/trip" element={<TripPlan />} />
       </Routes>
+      <TravelChatbot />
     </Router>
   );
 }
