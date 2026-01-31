@@ -159,6 +159,37 @@ const generateMockPlan = (data) => {
     const budgetLevel = budget === 1 ? 'Budget' : budget === 2 ? 'Moderate' : 'Luxury';
     const dailyCost = budget === 1 ? 80 : budget === 2 ? 180 : 450;
 
+    // Combine preferences and safety for highlights
+    let allHighlights = preferences.length > 0 ? [...preferences] : ['Culture', 'Food', 'Scenery'];
+    if (data.safety && data.safety.length > 0) {
+        allHighlights = [...allHighlights, ...data.safety];
+    }
+
+
+    // --- LOCAL INTELLIGENCE ---
+    const localIntelligence = {
+        food: {
+            specialties: ['Local Ramen', 'Street Sushi', 'Matcha Sweets', 'Yakiniku BBQ'],
+            restaurants: [
+                { name: 'Ichiraku Ramen', type: 'Local Favorite', price: '$', tags: ['Comfort Food', 'Fast'] },
+                { name: 'Sakura Garden', type: 'Fine Dining', price: '$$$', tags: ['Vegetarian Friendly', 'View'] },
+                { name: 'Ocean Blue', type: 'Seafood', price: '$$', tags: ['Fresh Catch', 'Outdoor'] }
+            ]
+        },
+        transport: {
+            routes: ['City Loop Bus (Line 5)', 'Metro Green Line', 'River Ferry'],
+            passes: ['Day Pass ($8)', '3-Day Tourist Card ($20)'],
+            contacts: [
+                { type: 'Taxi', name: 'City Cab', contact: '+1 234 567 890' },
+                { type: 'Rental', name: 'Bike & Go', contact: 'App Download' }
+            ]
+        },
+        guides: [
+            { name: 'Kenji Sato', languages: ['English', 'Japanese'], rating: 4.9, specialty: 'History & Culture' },
+            { name: 'Sarah Lee', languages: ['English', 'Korean'], rating: 4.8, specialty: 'Food Tours' }
+        ]
+    };
+
     return {
         tripName: `${mood.charAt(0).toUpperCase() + mood.slice(1)} Trip to ${destination}`,
         destination,
@@ -172,7 +203,12 @@ const generateMockPlan = (data) => {
             currency: 'USD'
         },
         itinerary: days,
+<<<<<<< HEAD
         highlights: preferences && preferences.length > 0 ? preferences : ['Culture', 'Sightseeing', 'Relaxation']
+=======
+        highlights: allHighlights,
+        localIntelligence
+>>>>>>> 632e7e0839e54373d54c1f10184d36216076e3be
     };
 };
 

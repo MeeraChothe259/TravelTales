@@ -6,9 +6,13 @@ import {
     Ticket, Frown, X, AlertTriangle, Calendar, Info
 } from 'lucide-react';
 
+import MapExploration from './MapExploration';
+import LocalIntelligence from './LocalIntelligence';
+
 const TripPlan = () => {
     const location = useLocation();
     const navigate = useNavigate();
+<<<<<<< HEAD
     const { plan } = location.state || {};
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [isSaved, setIsSaved] = useState(false);
@@ -41,8 +45,12 @@ const TripPlan = () => {
             alert("Link copied to clipboard!");
         }
     };
+=======
+    const { plan } = location.state || {}; // plan now includes localIntelligence
+>>>>>>> 632e7e0839e54373d54c1f10184d36216076e3be
 
     if (!plan) {
+
         return (
             <div className="flex justify-center items-center" style={{ minHeight: '100vh', background: 'var(--bg-body)' }}>
                 <div className="text-center">
@@ -100,7 +108,17 @@ const TripPlan = () => {
             </div>
 
             <div className="container" style={{ marginTop: '-3rem', position: 'relative', zIndex: 10 }}>
-                <div className="trip-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2.5fr) minmax(0, 1fr)', gap: '2rem' }}>
+                {/* 5️⃣ Map-Based Exploration */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    style={{ marginBottom: '2rem' }}
+                >
+                    <MapExploration plan={plan} />
+                </motion.div>
+
+                <div className="trip-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2fr) minmax(0, 1.2fr)', gap: '2rem' }}>
 
                     {/* Itinerary Column */}
                     <div className="itinerary-list">
@@ -167,6 +185,11 @@ const TripPlan = () => {
                                     </span>
                                 ))}
                             </div>
+                        </motion.div>
+
+                        {/* 6️⃣ Local Intelligence */}
+                        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
+                            <LocalIntelligence data={plan.localIntelligence} />
                         </motion.div>
 
                         {/* Actions */}
