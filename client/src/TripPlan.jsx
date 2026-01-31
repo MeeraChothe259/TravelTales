@@ -3,11 +3,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
     ArrowLeft, Sun, Download, Share2, DollarSign, Clock, MapPin,
-    Ticket, Frown, X, AlertTriangle, Calendar, Info, Wallet, ArrowRight
+    Ticket, Frown, X, AlertTriangle, Calendar, Info, Wallet, ArrowRight, Home
 } from 'lucide-react';
 
 import MapExploration from './MapExploration';
 import LocalIntelligence from './LocalIntelligence';
+import LiveContext from './LiveContext';
 import { useLanguage } from './LanguageContext';
 
 const TripPlan = () => {
@@ -69,7 +70,7 @@ const TripPlan = () => {
             {/* Header Image */}
             <div className="trip-header" style={{
                 height: '350px',
-                background: `linear-gradient(to top, rgba(0,0,0,0.8), transparent), url(https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80) center/cover`,
+                background: `linear-gradient(to top, rgba(0,0,0,0.8), transparent), url(${plan.coverImage || 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80'}) center/cover`,
                 position: 'relative',
                 color: 'white',
                 display: 'flex',
@@ -99,6 +100,11 @@ const TripPlan = () => {
                             <span style={{ background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(5px)', padding: '0.2rem 0.8rem', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 'bold' }}>
                                 {plan.dates}
                             </span>
+                            {plan.timezone !== undefined && (
+                                <span style={{ background: 'rgba(255,255,255,0.2)', backdropFilter: 'blur(5px)', padding: '0.2rem 0.8rem', borderRadius: '50px', fontSize: '0.8rem', fontWeight: 'bold' }}>
+                                    🕒 {new Date(new Date().getTime() + (plan.timezone * 1000) + (new Date().getTimezoneOffset() * 60000)).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} Local Time
+                                </span>
+                            )}
                         </div>
                         <h1 style={{ color: 'white', marginBottom: '0.5rem', fontSize: '4rem' }}>{plan.destination}</h1>
                         <p style={{ fontSize: '1.2rem', opacity: 0.9 }}>
@@ -184,6 +190,35 @@ const TripPlan = () => {
                             </button>
                         </motion.div>
 
+                        {/* Stays / Hotels (NEW) */}
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.05 }}
+                            className="card"
+                            style={{
+                                background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+                                color: 'white',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '1rem',
+                                padding: '1.5rem'
+                            }}
+                        >
+                            <div className="flex items-center gap-3">
+                                <Home size={24} color="white" />
+                                <h3 style={{ margin: 0, color: 'white' }}>{t('staySuggestions') || 'Stay Suggestions'}</h3>
+                            </div>
+                            <p style={{ margin: 0, fontSize: '0.9rem', color: 'rgba(255,255,255,0.8)' }}>
+                                {t('stayDesc') || 'Explore handpicked accommodations matching your budget.'}
+                            </p>
+                            <button
+                                onClick={() => navigate('/hotels', { state: { hotels: plan.hotelSuggestions, destination: plan.destination } })}
+                                className="btn"
+                                style={{ background: 'white', color: '#059669', width: '100%', border: 'none' }}
+                            >
+                                {t('viewStays') || 'Explore Hotels'} <ArrowRight size={18} />
+                            </button>
+                        </motion.div>
+
                         {/* Highlights */}
                         <motion.div className="card" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.1 }}>
                             <h3>{t('highlights')}</h3>
@@ -197,6 +232,11 @@ const TripPlan = () => {
                         </motion.div>
 
                         {/* 6️⃣ Local Intelligence */}
+                        {/* Live Updates (NEW) */}
+                        <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.15 }}>
+                            <LiveContext plan={plan} />
+                        </motion.div>
+
                         <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}>
                             <LocalIntelligence data={plan.localIntelligence} />
                         </motion.div>

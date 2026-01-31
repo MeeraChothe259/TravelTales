@@ -71,6 +71,10 @@ const MapExploration = ({ plan }) => {
     // Geocoding Logic: Resolve destination to coordinates
     useEffect(() => {
         if (!plan?.destination) return;
+        if (plan.destinationCoords) {
+            setMapCenter([plan.destinationCoords.lat, plan.destinationCoords.lng]);
+            return;
+        }
 
         const geocode = async () => {
             // Only geocode if we DON'T have coordinates in the plan or if it's a different destination
@@ -94,7 +98,7 @@ const MapExploration = ({ plan }) => {
         };
 
         geocode();
-    }, [plan?.destination]);
+    }, [plan?.destination, plan?.destinationCoords]);
 
     // Component to handle map centering
     const RecenterMap = ({ center }) => {
@@ -107,6 +111,7 @@ const MapExploration = ({ plan }) => {
 
     // --- REAL-TIME POI FETCHING (Overpass API) ---
     useEffect(() => {
+<<<<<<< HEAD
         if (isSearching) return; // Wait for geocoding to settle
 
         const fetchPOIs = async () => {
@@ -154,8 +159,32 @@ const MapExploration = ({ plan }) => {
                         phone: el.tags.phone || el.tags['contact:phone'],
                         hours: el.tags.opening_hours
                     };
+=======
+        if (!plan) return;
+
+        const newMarkers = [];
+
+        // 1. Places (from Itinerary) - REAL COORDINATES
+        if (plan.itinerary) {
+            plan.itinerary.forEach((day, dIdx) => {
+                const dayActivities = [
+                    { ...day.morning, timeLabel: 'Morning' },
+                    { ...day.afternoon, timeLabel: 'Afternoon' },
+                    { ...day.evening, timeLabel: 'Evening' }
+                ].filter(a => a.title && a.coords);
+
+                dayActivities.forEach((act, aIdx) => {
+                    newMarkers.push({
+                        id: `act-${dIdx}-${aIdx}`,
+                        type: 'places',
+                        position: [act.coords.lat, act.coords.lng],
+                        title: act.title,
+                        desc: `${act.timeLabel} • ${act.type} • ${act.cost}`
+                    });
+>>>>>>> 2a50520d9487c2e4b0d9f049090e4158090e835f
                 });
 
+<<<<<<< HEAD
                 // Add Itinerary Items from Plan
                 const planMarkers = [];
                 if (plan && plan.itinerary) {
@@ -186,6 +215,58 @@ const MapExploration = ({ plan }) => {
         const timeoutId = setTimeout(fetchPOIs, 800); // Debounce
         return () => clearTimeout(timeoutId);
     }, [mapCenter, isSearching, plan]);
+=======
+        // 2. Food Spots - REAL COORDINATES
+        if (plan.localIntelligence?.food?.restaurants) {
+            plan.localIntelligence.food.restaurants.forEach((rest, i) => {
+                if (rest.coords) {
+                    newMarkers.push({
+                        id: `food-${i}`,
+                        type: 'food',
+                        position: [rest.coords.lat, rest.coords.lng],
+                        title: rest.name,
+                        desc: `${rest.type} • ${rest.price}`
+                    });
+                }
+            });
+        }
+
+        // 3. Transport Hubs - REAL COORDINATES
+        if (plan.localIntelligence?.transport?.hubs) {
+            plan.localIntelligence.transport.hubs.forEach((hub, i) => {
+                if (hub.coords) {
+                    newMarkers.push({
+                        id: `trans-${i}`,
+                        type: 'transport',
+                        position: [hub.coords.lat, hub.coords.lng],
+                        title: hub.name,
+                        desc: t('transportHub') || 'Public Transport Hub'
+                    });
+                }
+            });
+        }
+
+        // 4. Fallback/Extra Layers (Rental & Emergency) - Keep randomized around center if AI doesn't provide
+        const extraCategories = ['rental', 'emergency'];
+        extraCategories.forEach(cat => {
+            const items = cat === 'rental'
+                ? [{ name: "City Bike Share", desc: "Eco-friendly Transit" }]
+                : [{ name: "Central Hospital", desc: "Emergency Care" }];
+
+            items.forEach((item, i) => {
+                newMarkers.push({
+                    id: `${cat}-${i}`,
+                    type: cat,
+                    position: [mapCenter[0] + (Math.random() - 0.5) * 0.05, mapCenter[1] + (Math.random() - 0.5) * 0.05],
+                    title: item.name,
+                    desc: item.desc
+                });
+            });
+        });
+
+        setMarkers(newMarkers);
+    }, [plan, mapCenter, t]);
+>>>>>>> 2a50520d9487c2e4b0d9f049090e4158090e835f
 
     const toggleLayer = (layer) => {
         setActiveLayers(prev => ({ ...prev, [layer]: !prev[layer] }));
