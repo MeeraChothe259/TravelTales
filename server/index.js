@@ -8,6 +8,11 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
+// Health Check
+app.get('/', (req, res) => {
+    res.send('TravelTales API is running!');
+});
+
 // Routes
 app.post('/api/generate-plan', (req, res) => {
     try {
