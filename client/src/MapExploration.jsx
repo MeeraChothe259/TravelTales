@@ -65,15 +65,17 @@ const MapExploration = ({ plan }) => {
         const newMarkers = [];
 
         // 1. Places (from Itinerary)
+        // 1. Places (from Itinerary)
         if (plan && plan.itinerary) {
             plan.itinerary.forEach((day, dIdx) => {
-                day.activities.forEach((act, aIdx) => {
+                const dayActivities = [day.morning, day.afternoon, day.evening].filter(Boolean);
+                dayActivities.forEach((act, aIdx) => {
                     newMarkers.push({
                         id: `act-${dIdx}-${aIdx}`,
                         type: 'places',
                         position: [center[0] + (Math.random() - 0.5) * 0.05, center[1] + (Math.random() - 0.5) * 0.05],
                         title: act.title,
-                        desc: act.time
+                        desc: `${act.time} • ${act.type}`
                     });
                 });
             });

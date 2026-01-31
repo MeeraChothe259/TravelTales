@@ -1,0 +1,150 @@
+/* LocalIntelligence.css */
+
+.local-intel-container {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    border: 1px solid var(--border-light);
+}
+
+.intel-header {
+    background: #FAFAFA;
+}
+
+.intel-header h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+}
+
+.intel-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-light);
+    background: #fff;
+    padding: 0 1rem;
+}
+
+.tab-btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1rem;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    background: #F8FAFC;
+    color: var(--primary);
+}
+
+.tab-btn.active {
+    border-bottom-color: var(--primary);
+    color: var(--primary);
+    background: #F3E8FF;
+}
+
+.intel-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.intel-card {
+    background: #fff;
+    border: 1px solid var(--border-light);
+    border-radius: 12px;
+    padding: 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.intel-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border-color: var(--primary-light);
+}
+
+.chip.badge-primary {
+    background: #E0E7FF;
+    color: #4338CA;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.tag-xs {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.5rem;
+    background: #F1F5F9;
+    color: #475569;
+    border-radius: 4px;
+}
+
+.contact-pill {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #F0FDF4;
+    color: #166534;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    border: 1px solid #BBF7D0;
+}
+
+.avatar-placeholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #F3E8FF;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.text-grey {
+    color: #64748B;
+}
+
+.text-sm {
+    font-size: 0.875rem;
+}
+
+.text-xs {
+    font-size: 0.75rem;
+}
+
+.font-bold {
+    font-weight: 700;
+}
+
+.icon-btn-small {
+    background: #F1F5F9;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--primary);
+    transition: all 0.2s;
+}
+
+.icon-btn-small:hover {
+    background: var(--primary-light);
+    transform: scale(1.1);
+}
