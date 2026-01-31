@@ -6,6 +6,8 @@ import Onboarding from './Onboarding';
 import TripPlan from './TripPlan';
 import BudgetCurrencyPage from './BudgetCurrencyPage';
 import HotelSuggestionsPage from './HotelSuggestionsPage';
+import DestinationDiscovery from './DestinationDiscovery';
+import DestinationResults from './DestinationResults';
 import Navbar from './components/Navbar';
 
 function App() {
@@ -14,6 +16,9 @@ function App() {
       <Router>
         <Routes>
           <Route path="/" element={<LandingPage />} />
+          <Route path="/discover" element={<DestinationDiscovery />} />
+          <Route path="/destination-results" element={<DestinationResults />} />
+          <Route path="/onboarding" element={<><Navbar /><Onboarding /></>} />
           <Route path="/plan" element={<><Navbar /><Onboarding /></>} />
           <Route path="/trip" element={<><Navbar /><TripPlan /></>} />
           <Route path="/budget" element={<BudgetCurrencyPage />} />
@@ -25,4 +30,3 @@ function App() {
 }
 
 export default App;
-

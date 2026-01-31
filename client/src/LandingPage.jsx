@@ -37,15 +37,23 @@ const LandingPage = () => {
                             <p style={{ fontSize: '1.2rem', maxWidth: '600px', marginBottom: '2rem' }}>
                                 {t('heroSubtitle')}
                             </p>
-                            <div className="flex gap-4">
+                            <div className="flex gap-4" style={{ flexWrap: 'wrap' }}>
                                 <button
                                     className="btn btn-primary"
                                     onClick={() => navigate('/plan')}
                                 >
                                     {t('startPlanning')} <ArrowRight size={20} />
                                 </button>
-                                <button className="btn btn-secondary">
-                                    {t('viewDemo')}
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => navigate('/discover')}
+                                    style={{
+                                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                                        color: 'white',
+                                        border: 'none'
+                                    }}
+                                >
+                                    <Compass size={20} /> Not Sure Where to Go?
                                 </button>
                             </div>
                         </motion.div>

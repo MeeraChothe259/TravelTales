@@ -84,6 +84,32 @@ const generateMockPlan = (data) => {
         const regretLevels = ['Low', 'Medium', 'High', 'Extreme'];
         const pickedRegret = rnd(regretLevels);
 
+        const densities = ['15%', '30%', '45%', '60%', '75%', '90%'];
+        const bestTimes = ['7:00 AM', '10:30 AM', '2:00 PM', '5:30 PM', '8:00 PM'];
+
+        const lateAlternatives = [
+            `Start with a quick breakfast at a nearby café, then head straight to ${act.title} by ${slotName === 'Morning' ? '11:30 AM' : '3:00 PM'}. Skip the gift shop to save time!`,
+            `Combine this with your ${slotName === 'Morning' ? 'afternoon' : 'evening'} activity. Take a taxi instead of public transport to make up lost time.`,
+            `Reschedule to tomorrow morning and use today to explore the neighborhood on foot - you'll discover hidden gems!`,
+            `Turn it into a sunset visit instead! The ${slotName === 'Morning' ? 'evening' : 'late night'} crowds are smaller and the lighting is magical for photos.`
+        ];
+
+        const skippedAlternatives = [
+            `Visit the local artisan market just 10 minutes away - authentic crafts, live music, and street food. Open until 8 PM!`,
+            `Head to the riverside promenade for a scenic walk. Locals love it, and there's a famous ice cream vendor at the north end.`,
+            `Check out the neighborhood's historic library - free entry, stunning architecture, and a rooftop café with panoramic views.`,
+            `Explore the botanical gardens nearby. Peaceful, Instagram-worthy, and you might catch a free guided tour at 4 PM.`,
+            `Try the underground food hall - 20+ vendors, live cooking demos, and it's where locals actually eat. Much better than tourist traps!`
+        ];
+
+        const overspentAlternatives = [
+            `Switch to a free walking tour of the old quarter - tips-based, and guides are incredibly knowledgeable. Starts every 2 hours.`,
+            `Pack a picnic from the local grocery store and enjoy it at the central park. Save $30+ and it's more authentic!`,
+            `Visit the free museum district instead - world-class exhibits, no entry fee on weekdays. Grab street food nearby for $5.`,
+            `Take the scenic route on foot instead of a taxi. You'll save money AND discover amazing street art and local cafés.`,
+            `Join a community cooking class ($15 vs $50 restaurant) - learn local recipes, eat what you make, and take home new skills!`
+        ];
+
         return {
             title: act.title,
             type: act.type || 'Experience',
@@ -96,7 +122,14 @@ const generateMockPlan = (data) => {
             holidays: act.holidays,
             warnings: act.warnings,
             safeToSkip: pickedRegret === 'Low',
-            regretProb: pickedRegret === 'Extreme' ? '95%' : pickedRegret === 'High' ? '85%' : pickedRegret === 'Medium' ? '45%' : '10%'
+            regretProb: pickedRegret === 'Extreme' ? '95%' : pickedRegret === 'High' ? '85%' : pickedRegret === 'Medium' ? '45%' : '10%',
+            crowdDensity: rnd(densities),
+            bestTime: rnd(bestTimes),
+            smartAlternatives: {
+                late: rnd(lateAlternatives),
+                skipped: rnd(skippedAlternatives),
+                overspent: rnd(overspentAlternatives)
+            }
         };
     };
 
@@ -113,17 +146,172 @@ const generateMockPlan = (data) => {
     const diffTime = Math.abs(end - start);
     const numDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 
-    // --- GENERATE DAYS ---
+
+    // --- GENERATE DAYS WITH FULL SCHEDULE ---
     const days = [];
     let totalActivityCost = 0;
     const dayWiseActivityCosts = [];
 
-    for (let i = 1; i <= numDays; i++) {
-        const morning = getSlot(dest, 'Morning');
-        const afternoon = getSlot(dest, 'Afternoon');
-        const evening = getSlot(dest, 'Evening');
+    // Meal options based on budget
+    const breakfastOptions = {
+        1: [
+            { title: 'Local Café Breakfast', cost: '$8', duration: '45 mins', type: 'Meal', description: 'Fresh pastries and coffee at a neighborhood café' },
+            { title: 'Street Food Breakfast', cost: '$5', duration: '30 mins', type: 'Meal', description: 'Authentic local breakfast from street vendors' },
+            { title: 'Hotel Breakfast Buffet', cost: '$12', duration: '1h', type: 'Meal', description: 'Continental breakfast at your hotel' }
+        ],
+        2: [
+            { title: 'Brunch at Trendy Bistro', cost: '$25', duration: '1.5h', type: 'Meal', description: 'Instagram-worthy brunch with local specialties' },
+            { title: 'Rooftop Breakfast', cost: '$22', duration: '1h', type: 'Meal', description: 'Breakfast with panoramic city views' },
+            { title: 'Farm-to-Table Morning', cost: '$28', duration: '1.5h', type: 'Meal', description: 'Organic breakfast with fresh local ingredients' }
+        ],
+        3: [
+            { title: 'Luxury Hotel Breakfast', cost: '$45', duration: '2h', type: 'Meal', description: 'Five-star breakfast experience with champagne' },
+            { title: 'Celebrity Chef Brunch', cost: '$65', duration: '2h', type: 'Meal', description: 'Exclusive brunch by renowned local chef' },
+            { title: 'Private Terrace Breakfast', cost: '$55', duration: '1.5h', type: 'Meal', description: 'Personalized breakfast service on private terrace' }
+        ]
+    };
 
-        const dayCost = parseCost(morning.cost) + parseCost(afternoon.cost) + parseCost(evening.cost);
+    const lunchOptions = {
+        1: [
+            { title: 'Local Food Market', cost: '$10', duration: '1h', type: 'Meal', description: 'Fresh, authentic lunch from market stalls' },
+            { title: 'Quick Bite Café', cost: '$12', duration: '45 mins', type: 'Meal', description: 'Fast casual lunch near attractions' },
+            { title: 'Picnic in the Park', cost: '$8', duration: '1h', type: 'Meal', description: 'Grab groceries and enjoy outdoor lunch' }
+        ],
+        2: [
+            { title: 'Riverside Restaurant', cost: '$35', duration: '1.5h', type: 'Meal', description: 'Scenic lunch with local cuisine' },
+            { title: 'Hidden Gem Bistro', cost: '$30', duration: '1.5h', type: 'Meal', description: 'Local favorite spot off the tourist path' },
+            { title: 'Artisan Pizza & Wine', cost: '$32', duration: '1.5h', type: 'Meal', description: 'Wood-fired pizza with local wine' }
+        ],
+        3: [
+            { title: 'Michelin-Recommended Lunch', cost: '$75', duration: '2h', type: 'Meal', description: 'Award-winning restaurant experience' },
+            { title: 'Chef\'s Tasting Menu', cost: '$85', duration: '2.5h', type: 'Meal', description: 'Multi-course lunch with wine pairing' },
+            { title: 'Exclusive Private Dining', cost: '$95', duration: '2h', type: 'Meal', description: 'Private chef experience' }
+        ]
+    };
+
+    const dinnerOptions = {
+        1: [
+            { title: 'Street Food Night Market', cost: '$15', duration: '1.5h', type: 'Meal', description: 'Explore vibrant night market with local delicacies' },
+            { title: 'Cozy Local Tavern', cost: '$18', duration: '1.5h', type: 'Meal', description: 'Traditional dinner in family-run restaurant' },
+            { title: 'Food Hall Experience', cost: '$20', duration: '2h', type: 'Meal', description: 'Sample multiple vendors in trendy food hall' }
+        ],
+        2: [
+            { title: 'Waterfront Dining', cost: '$50', duration: '2h', type: 'Meal', description: 'Romantic dinner with sunset views' },
+            { title: 'Live Music Restaurant', cost: '$45', duration: '2.5h', type: 'Meal', description: 'Dinner with local live entertainment' },
+            { title: 'Rooftop Fine Dining', cost: '$55', duration: '2h', type: 'Meal', description: 'Upscale dinner with city lights' }
+        ],
+        3: [
+            { title: 'Michelin Star Experience', cost: '$150', duration: '3h', type: 'Meal', description: 'World-class dining with sommelier service' },
+            { title: 'Private Chef Dinner', cost: '$180', duration: '3h', type: 'Meal', description: 'Exclusive chef\'s table experience' },
+            { title: 'Luxury Tasting Menu', cost: '$165', duration: '3.5h', type: 'Meal', description: '10-course tasting with rare wines' }
+        ]
+    };
+
+    for (let i = 1; i <= numDays; i++) {
+        // Wake-up slot
+        const wakeup = {
+            title: 'Morning Routine',
+            type: 'Personal',
+            time: '7:00 AM - 8:00 AM',
+            duration: '1h',
+            cost: 'Free',
+            description: 'Wake up, freshen up, and prepare for the day',
+            travelTime: '0 mins',
+            opening: '7:00 AM',
+            closing: '8:00 AM',
+            holidays: 'None',
+            warnings: 'Get a good night\'s sleep!',
+            safeToSkip: false,
+            regretProb: '5%',
+            crowdDensity: '0%',
+            bestTime: '7:00 AM',
+            smartAlternatives: {
+                late: 'Sleep in until 9 AM and skip breakfast at hotel - grab a quick coffee and pastry on the go!',
+                skipped: 'If you\'re exhausted, take a rest day morning and start your activities after lunch.',
+                overspent: 'Free activity - enjoy your hotel amenities or take a morning walk in the neighborhood.'
+            }
+        };
+
+        // Breakfast
+        const breakfastPool = breakfastOptions[budget];
+        const breakfastChoice = rnd(breakfastPool);
+        const breakfast = {
+            ...breakfastChoice,
+            time: '8:00 AM - 9:30 AM',
+            travelTime: `${rndNum(5, 15)} mins`,
+            opening: '7:00 AM',
+            closing: '11:00 AM',
+            holidays: 'None',
+            warnings: 'Popular spot - arrive early on weekends!',
+            safeToSkip: true,
+            regretProb: '15%',
+            crowdDensity: rnd(['20%', '35%', '45%']),
+            bestTime: '8:00 AM',
+            smartAlternatives: {
+                late: 'Grab a quick coffee and croissant from a nearby bakery - 5 mins and $6!',
+                skipped: 'Use hotel breakfast or buy snacks from a convenience store for $5.',
+                overspent: 'Switch to street food breakfast - equally delicious, half the price!'
+            }
+        };
+
+        // Morning activity
+        const morning = getSlot(dest, 'Morning');
+        morning.time = '10:00 AM - 1:00 PM';
+
+        // Lunch
+        const lunchPool = lunchOptions[budget];
+        const lunchChoice = rnd(lunchPool);
+        const lunch = {
+            ...lunchChoice,
+            time: '1:00 PM - 2:30 PM',
+            travelTime: `${rndNum(5, 20)} mins`,
+            opening: '11:30 AM',
+            closing: '3:00 PM',
+            holidays: 'None',
+            warnings: 'Peak lunch hours - expect wait times!',
+            safeToSkip: true,
+            regretProb: '20%',
+            crowdDensity: rnd(['40%', '60%', '75%']),
+            bestTime: '1:30 PM',
+            smartAlternatives: {
+                late: 'Have a late lunch at 3 PM when crowds clear - many restaurants offer deals!',
+                skipped: 'Grab takeaway and eat at your next attraction - saves time and money.',
+                overspent: 'Pack sandwiches from a grocery store - save $20+ and picnic somewhere scenic!'
+            }
+        };
+
+        // Afternoon activity
+        const afternoon = getSlot(dest, 'Afternoon');
+        afternoon.time = '3:00 PM - 6:00 PM';
+
+        // Evening activity
+        const evening = getSlot(dest, 'Evening');
+        evening.time = '6:30 PM - 8:00 PM';
+
+        // Dinner
+        const dinnerPool = dinnerOptions[budget];
+        const dinnerChoice = rnd(dinnerPool);
+        const dinner = {
+            ...dinnerChoice,
+            time: '8:30 PM - 10:30 PM',
+            travelTime: `${rndNum(10, 25)} mins`,
+            opening: '6:00 PM',
+            closing: '11:00 PM',
+            holidays: 'None',
+            warnings: 'Reservations recommended for popular spots!',
+            safeToSkip: false,
+            regretProb: '30%',
+            crowdDensity: rnd(['50%', '70%', '85%']),
+            bestTime: '7:30 PM',
+            smartAlternatives: {
+                late: 'Dine at 9:30 PM for a quieter atmosphere and sometimes better service!',
+                skipped: 'Order room service or try the hotel restaurant - convenient after a long day.',
+                overspent: 'Hit the night market instead - amazing food, half the price, authentic experience!'
+            }
+        };
+
+        const dayCost = parseCost(breakfast.cost) + parseCost(morning.cost) + parseCost(lunch.cost) +
+            parseCost(afternoon.cost) + parseCost(evening.cost) + parseCost(dinner.cost);
         totalActivityCost += dayCost;
         dayWiseActivityCosts.push(dayCost);
 
@@ -131,9 +319,13 @@ const generateMockPlan = (data) => {
             day: i,
             date: new Date(start.getTime() + (i - 1) * 86400000).toDateString(),
             weather: rnd(['Sunny ☀️', 'Clear 🌤️', 'Breezy 🍃', 'Partly Cloudy ⛅']),
+            wakeup,
+            breakfast,
             morning,
+            lunch,
             afternoon,
-            evening
+            evening,
+            dinner
         });
     }
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Utensils, Bus, User, Star, Phone } from 'lucide-react';
+import { Utensils, Bus, User, Star, Phone, Car, Bike } from 'lucide-react';
 import { useLanguage } from './LanguageContext';
 import './LocalIntelligence.css';
 
