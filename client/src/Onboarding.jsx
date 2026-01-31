@@ -1,25 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Check, Loader2 } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useLanguage } from './LanguageContext';
 
 const Onboarding = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const { t, language } = useLanguage();
     const [isLoading, setIsLoading] = useState(false);
+
+    // Get prefilled data from location state (from Destination Discovery)
+    const prefilledData = location.state?.prefilledData || {};
+
     const [formData, setFormData] = useState({
-        destination: '',
-        startDate: '',
-        endDate: '',
+        destination: prefilledData.destination || '',
+        startDate: prefilledData.startDate || '',
+        endDate: prefilledData.endDate || '',
         partners: '',
         mood: '',
-        budget: 2,
+        budget: prefilledData.budget || 2,
         budgetSplit: 'equal',
         preferences: [],
         constraints: [],
         safety: [],
-        travelerCount: 1
+        travelerCount: prefilledData.travelers || 1
     });
 
 

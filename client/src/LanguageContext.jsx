@@ -141,8 +141,23 @@ export const translations = {
         close: "Close",
         contactDetails: "Contact Information",
         backToDetails: "Back to Details",
+<<<<<<< HEAD
         options: "Options",
         calling: "Calling"
+=======
+        aiMagic: "AI Magic",
+        smartReschedule: "Smart Reschedule",
+        crowdSimulator: "Crowd Simulator",
+        crowdDensity: "Crowd Density",
+        bestTimeVisit: "Best time to visit",
+        rebalancingPlan: "Real-Time Rebalancing",
+        wakeUpLate: "Wake up late?",
+        skippedPlace: "Skipped place?",
+        overspent: "Overspent?",
+        rescheduleTip: "AI will auto-adjust your day...",
+        alternative: "Alternative",
+        simulatedCrowd: "Simulated Density"
+>>>>>>> c5b1cc2b697ead4b5688616b6e60a98d2ac69e4e
     },
     es: {
         appName: "TravelTales",
@@ -276,9 +291,25 @@ export const translations = {
         address: "Dirección",
         close: "Cerrar",
         contactDetails: "Información de contacto",
+<<<<<<< HEAD
         backToDetails: "Volver a Detalles",
         options: "Opciones",
         calling: "Llamando a"
+=======
+        backToDetails: "Volver a detalles",
+        aiMagic: "Magia de IA",
+        smartReschedule: "Reprogramación Inteligente",
+        crowdSimulator: "Simulador de Multitudes",
+        crowdDensity: "Densidad de Multitud",
+        bestTimeVisit: "Mejor momento para visitar",
+        rebalancingPlan: "Reequilibrio en Tiempo Real",
+        wakeUpLate: "¿Te despertaste tarde?",
+        skippedPlace: "¿Lugar saltado?",
+        overspent: "¿Gastaste de más?",
+        rescheduleTip: "La IA ajustará automáticamente tu día...",
+        alternative: "Alternativa",
+        simulatedCrowd: "Densidad Simulada"
+>>>>>>> c5b1cc2b697ead4b5688616b6e60a98d2ac69e4e
     },
     hi: {
         appName: "TravelTales",
@@ -413,8 +444,23 @@ export const translations = {
         close: "बंद करें",
         contactDetails: "संपर्क जानकारी",
         backToDetails: "विवरण पर वापस",
+<<<<<<< HEAD
         options: "विकल्प",
         calling: "कॉल किया जा रहा है"
+=======
+        aiMagic: "AI जादू",
+        smartReschedule: "स्मार्ट समय निर्धारण",
+        crowdSimulator: "भीड़ सिम्युलेटर",
+        crowdDensity: "भीड़ का घनत्व",
+        bestTimeVisit: "घूमने का सबसे अच्छा समय",
+        rebalancingPlan: "रीयल-टाइम रिबैलेंसिंग",
+        wakeUpLate: "देर से सोकर उठे?",
+        skippedPlace: "जगह छोड़ दी?",
+        overspent: "ज़्यादा खर्च हो गया?",
+        rescheduleTip: "AI आपके दिन को ऑटो-एडजस्ट करेगा...",
+        alternative: "विकल्प",
+        simulatedCrowd: "नकली भीड़ घनत्व"
+>>>>>>> c5b1cc2b697ead4b5688616b6e60a98d2ac69e4e
     },
     ru: {
         appName: "TravelTales",
@@ -549,8 +595,23 @@ export const translations = {
         close: "Закрыть",
         contactDetails: "Контактная информация",
         backToDetails: "Назад к описанию",
+<<<<<<< HEAD
         options: "Варианты",
         calling: "Звоним"
+=======
+        aiMagic: "Магия ИИ",
+        smartReschedule: "Умное расписание",
+        crowdSimulator: "Симулятор толпы",
+        crowdDensity: "Плотность толпы",
+        bestTimeVisit: "Лучшее время для посещения",
+        rebalancingPlan: "Перепланирование в реальном времени",
+        wakeUpLate: "Проспали?",
+        skippedPlace: "Пропустили место?",
+        overspent: "Потратили больше?",
+        rescheduleTip: "ИИ автоматически подстроит ваш день...",
+        alternative: "Альтернатива",
+        simulatedCrowd: "Симулированная плотность"
+>>>>>>> c5b1cc2b697ead4b5688616b6e60a98d2ac69e4e
     }
 };
 

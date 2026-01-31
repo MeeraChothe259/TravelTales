@@ -65,9 +65,19 @@ const generateRealPlan = async (data) => {
                "day": number,
                "date": "actual date",
                "weather": "e.g. Sunny 25°C",
-               "morning": { "title": "string", "type": "string", "time": "Morning", "duration": "string", "travelTime": "string", "cost": "string with currency symbol", "opening": "string", "closing": "string", "holidays": "string", "warnings": "string", "safeToSkip": boolean, "regretProb": "percentage string", "coords": { "lat": number, "lng": number } },
-               "afternoon": { ...same as morning... },
-               "evening": { ...same as morning... }
+               "wakeup": { "title": "Morning Routine", "type": "Personal", "time": "7:00 AM - 8:00 AM", "duration": "1h", "cost": "Free", "description": "string" },
+               "breakfast": { "title": "string", "type": "Meal", "time": "8:00 AM - 9:30 AM", "duration": "string", "cost": "string", "description": "string", "crowdDensity": "percentage", "bestTime": "string", "smartAlternatives": { "skipped": "string", "late": "string", "overspent": "string" } },
+               "morning": { 
+                  "title": "string", "type": "string", "time": "10:00 AM - 1:00 PM", "duration": "string", "travelTime": "string", 
+                  "cost": "string with currency symbol", "opening": "string", "closing": "string", "holidays": "string", 
+                  "warnings": "string", "safeToSkip": boolean, "regretProb": "percentage", "crowdDensity": "percentage", "bestTime": "string",
+                  "smartAlternatives": { "skipped": "string", "late": "string", "overspent": "string" },
+                  "coords": { "lat": number, "lng": number } 
+               },
+               "lunch": { "title": "string", "type": "Meal", "time": "1:00 PM - 2:30 PM", "duration": "string", "cost": "string", "description": "string", "crowdDensity": "percentage", "bestTime": "string", "smartAlternatives": { "skipped": "string", "late": "string", "overspent": "string" } },
+               "afternoon": { "title": "string", "type": "string", "time": "3:00 PM - 6:00 PM", "duration": "string", "cost": "string", "crowdDensity": "percentage", "bestTime": "string", "smartAlternatives": { "skipped": "string", "late": "string", "overspent": "string" }, "coords": { "lat": number, "lng": number } },
+               "evening": { "title": "string", "type": "string", "time": "6:30 PM - 8:00 PM", "duration": "string", "cost": "string", "crowdDensity": "percentage", "bestTime": "string", "smartAlternatives": { "skipped": "string", "late": "string", "overspent": "string" }, "coords": { "lat": number, "lng": number } },
+               "dinner": { "title": "string", "type": "Meal", "time": "8:30 PM - 10:30 PM", "duration": "string", "cost": "string", "description": "string", "crowdDensity": "percentage", "bestTime": "string", "smartAlternatives": { "skipped": "string", "late": "string", "overspent": "string" } }
             }
           ],
           "highlights": ["string"],
@@ -98,6 +108,17 @@ const generateRealPlan = async (data) => {
              }
           ]
         }
+
+
+        IMPORTANT: For smartAlternatives, provide SPECIFIC, CREATIVE, and ACTIONABLE suggestions:
+        - "late": Suggest rescheduling with exact times, transportation tips, and time-saving hacks
+        - "skipped": Recommend nearby alternatives with descriptions, distances, and why locals love them
+        - "overspent": Provide budget-friendly swaps with cost comparisons and authentic local experiences
+        
+        Examples:
+        - late: "Start with breakfast at Café Luna (5 min walk), then taxi to the museum by 11 AM. Skip the gift shop to save 20 mins!"
+        - skipped: "Visit the artisan market 10 mins away - live music, street food, handmade crafts. Locals' favorite spot!"
+        - overspent: "Join the free walking tour (tips-based, every 2 hours). Pack a picnic from the market - save $30 and eat like a local!"
 
         Be realistic with costs. Use local currency converted to USD for budgetSummary. 
         Ensure all text is in the requested language (${language}).
