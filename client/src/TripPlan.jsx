@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Sun, Download, Share2, DollarSign } from 'lucide-react';
+import { ArrowLeft, Sun, Download, Share2, DollarSign, Clock, MapPin, Ticket, Frown } from 'lucide-react';
 
 import MapExploration from './MapExploration';
 
@@ -28,7 +28,7 @@ const TripPlan = () => {
             {/* Header Image */}
             <div className="trip-header" style={{
                 height: '350px',
-                background: `linear-gradient(to top, rgba(0,0,0,0.7), transparent), url(https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80) center/cover`,
+                background: `linear-gradient(to top, rgba(0,0,0,0.8), transparent), url(https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80) center/cover`,
                 position: 'relative',
                 color: 'white',
                 display: 'flex',
@@ -61,13 +61,14 @@ const TripPlan = () => {
                         </div>
                         <h1 style={{ color: 'white', marginBottom: '0.5rem', fontSize: '4rem' }}>{plan.destination}</h1>
                         <p style={{ fontSize: '1.2rem', opacity: 0.9 }}>
-                            Your personalized {plan.travelers} adventure. Est. Budget: <span style={{ color: '#86EFAC', fontWeight: 'bold' }}>${plan.budgetSummary.total}</span>
+                            Your personalized {plan.travelers} adventure. Est. Budget: <span style={{ color: '#86EFAC', fontWeight: 'bold' }}>${plan.budgetSummary.total} Total</span>
                         </p>
                     </motion.div>
                 </div>
             </div>
 
             <div className="container" style={{ marginTop: '-3rem', position: 'relative', zIndex: 10 }}>
+<<<<<<< HEAD
                 {/* 5️⃣ Map-Based Exploration */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -79,19 +80,22 @@ const TripPlan = () => {
                 </motion.div>
 
                 <div className="trip-grid" style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
+=======
+                <div className="trip-grid" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 2.5fr) minmax(0, 1fr)', gap: '2rem' }}>
+>>>>>>> 7eecfb97e74a6da82c4ceddc52a6dffb542cc5c3
 
                     {/* Itinerary Column */}
-                    <div className="itinerary-list" style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
+                    <div className="itinerary-list">
                         {plan.itinerary.map((day, index) => (
                             <motion.div
                                 key={day.day}
-                                className="card"
+                                className="day-card"
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
-                                style={{ padding: 0, overflow: 'hidden' }}
                             >
-                                <div style={{ padding: '1.5rem', background: '#F8FAFC', borderBottom: '1px solid var(--border-light)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                {/* Day Header */}
+                                <div className="day-header">
                                     <div>
                                         <h3 style={{ margin: 0 }}>Day {day.day}</h3>
                                         <p style={{ margin: 0, fontSize: '0.9rem' }}>{day.date}</p>
@@ -100,19 +104,12 @@ const TripPlan = () => {
                                         <Sun size={16} style={{ color: '#F59E0B' }} /> {day.weather}
                                     </div>
                                 </div>
-                                <div style={{ padding: '1.5rem' }}>
-                                    <div style={{ paddingLeft: '2rem', borderLeft: '2px solid var(--primary-light)', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                                        {day.activities.map((activity, i) => (
-                                            <div key={i} style={{ position: 'relative' }}>
-                                                <div style={{ position: 'absolute', left: '-2.7rem', top: '0', width: '20px', height: '20px', borderRadius: '50%', background: 'var(--primary)', border: '4px solid white', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}></div>
-                                                <div className="flex items-center gap-4" style={{ marginBottom: '0.5rem' }}>
-                                                    <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--text-light)' }}>{activity.time}</span>
-                                                    <h4 style={{ margin: 0, fontSize: '1.1rem' }}>{activity.title}</h4>
-                                                </div>
-                                                <p style={{ fontSize: '0.9rem' }}>Recommended activity based on your interests.</p>
-                                            </div>
-                                        ))}
-                                    </div>
+
+                                {/* Timeline Grid */}
+                                <div className="timeline-grid">
+                                    <ActivitySlot label="Morning 🌅" data={day.morning} />
+                                    <ActivitySlot label="Afternoon ☀️" data={day.afternoon} />
+                                    <ActivitySlot label="Evening 🌙" data={day.evening} />
                                 </div>
                             </motion.div>
                         ))}
@@ -170,5 +167,42 @@ const TripPlan = () => {
         </div>
     );
 };
+
+const ActivitySlot = ({ label, data }) => (
+    <div className="time-slot">
+        <span className="slot-label">{label}</span>
+        <div className="activity-title">{data.title}</div>
+
+        <div className="meta-row">
+            <span className="meta-item"><Clock size={14} /> {data.duration}</span>
+            <span className="meta-item"><Ticket size={14} /> {data.cost}</span>
+        </div>
+        <div className="meta-row" style={{ marginTop: '-0.5rem' }}>
+            <span className="meta-item"><MapPin size={14} /> {data.travelTime} away</span>
+        </div>
+
+        <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+            {data.safeToSkip ? (
+                <span className="tag tag-skip">Safe to Skip</span>
+            ) : (
+                <span className="tag tag-essential">Must Do</span>
+            )}
+        </div>
+
+        {!data.safeToSkip && (
+            <div className="regret-box">
+                <span className="regret-label flex items-center gap-1">
+                    <Frown size={12} /> FOMO LEVEL: {data.regretProb}
+                </span>
+                <div className="regret-bar">
+                    <div
+                        className="regret-fill"
+                        style={{ width: data.regretProb }}
+                    ></div>
+                </div>
+            </div>
+        )}
+    </div>
+);
 
 export default TripPlan;
