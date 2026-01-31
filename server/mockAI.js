@@ -45,6 +45,12 @@ const generateMockPlan = (data) => {
         });
     }
 
+    // Combine preferences and safety for highlights
+    let allHighlights = preferences.length > 0 ? [...preferences] : ['Culture', 'Food', 'Scenery'];
+    if (data.safety && data.safety.length > 0) {
+        allHighlights = [...allHighlights, ...data.safety];
+    }
+
     return {
         tripName: `${mood.charAt(0).toUpperCase() + mood.slice(1)} Trip to ${destination}`,
         destination,
@@ -58,7 +64,7 @@ const generateMockPlan = (data) => {
             currency: 'USD'
         },
         itinerary: days,
-        highlights: preferences.length > 0 ? preferences : ['Culture', 'Food', 'Scenery']
+        highlights: allHighlights
     };
 };
 
