@@ -92,6 +92,7 @@ const generateRealPlan = async (data) => {
           "localIntelligence": {
              "food": { "specialties": ["string"], "restaurants": [{ "name": "string", "type": "string", "price": "e.g. $", "tags": ["string"], "coords": { "lat": number, "lng": number } }] },
              "transport": { "routes": ["string"], "passes": ["string"], "contacts": [{"type": "string", "name": "string", "contact": "string"}], "hubs": [{"name": "string", "coords": { "lat": number, "lng": number }}] },
+             "rental": { "contacts": [{"type": "string", "name": "string", "contact": "string"}], "options": ["string"] },
              "guides": [{"name": "string", "languages": ["string"], "rating": number, "specialty": "string"}]
           },
           "hotelSuggestions": [

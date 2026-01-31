@@ -101,6 +101,7 @@ export const translations = {
         recommendedSpots: "Recommended Spots",
         routes: "Routes",
         passes: "Passes",
+        rentedVehicles: "Rented Vehicles",
         keyContacts: "Key Contacts",
         specialtyLabel: "Specialty",
         languagesLabel: "Languages",
@@ -140,6 +141,10 @@ export const translations = {
         close: "Close",
         contactDetails: "Contact Information",
         backToDetails: "Back to Details",
+<<<<<<< HEAD
+        options: "Options",
+        calling: "Calling"
+=======
         aiMagic: "AI Magic",
         smartReschedule: "Smart Reschedule",
         crowdSimulator: "Crowd Simulator",
@@ -151,6 +156,7 @@ export const translations = {
         overspent: "Overspent?",
         rescheduleTip: "AI will auto-adjust your day...",
         alternative: "Alternative",
+<<<<<<< HEAD
         simulatedCrowd: "Simulated Density",
         travelVlogs: "Travel Vlogs",
         vlogDesc: "Watch most viewed travel vlogs to visualize your trip.",
@@ -167,6 +173,10 @@ export const translations = {
         hiddenGemsCard: "Hidden Gems",
         hiddenGemsDesc: "Discover underrated spots and local secrets in the city.",
         viewSecrets: "View Secrets"
+=======
+        simulatedCrowd: "Simulated Density"
+>>>>>>> c5b1cc2b697ead4b5688616b6e60a98d2ac69e4e
+>>>>>>> 2e6032042ab9777f2f58a97fa68d7c1fb6519d2c
     },
     es: {
         appName: "TravelTales",
@@ -262,6 +272,7 @@ export const translations = {
         recommendedSpots: "Lugares Recomendados",
         routes: "Rutas",
         passes: "Pases",
+        rentedVehicles: "Vehículos de Alquiler",
         keyContacts: "Contactos Clave",
         specialtyLabel: "Especialidad",
         languagesLabel: "Idiomas",
@@ -299,6 +310,11 @@ export const translations = {
         address: "Dirección",
         close: "Cerrar",
         contactDetails: "Información de contacto",
+<<<<<<< HEAD
+        backToDetails: "Volver a Detalles",
+        options: "Opciones",
+        calling: "Llamando a"
+=======
         backToDetails: "Volver a detalles",
         aiMagic: "Magia de IA",
         smartReschedule: "Reprogramación Inteligente",
@@ -311,6 +327,7 @@ export const translations = {
         overspent: "¿Gastaste de más?",
         rescheduleTip: "La IA ajustará automáticamente tu día...",
         alternative: "Alternativa",
+<<<<<<< HEAD
         simulatedCrowd: "Densidad Simulada",
         travelVlogs: "Vlogs de Viajes",
         vlogDesc: "Mira los vlogs de viajes más vistos para visualizar tu viaje.",
@@ -327,6 +344,10 @@ export const translations = {
         hiddenGemsCard: "Gemas Ocultas",
         hiddenGemsDesc: "Descubre lugares subestimados y secretos locales en la ciudad.",
         viewSecrets: "Ver Secretos"
+=======
+        simulatedCrowd: "Densidad Simulada"
+>>>>>>> c5b1cc2b697ead4b5688616b6e60a98d2ac69e4e
+>>>>>>> 2e6032042ab9777f2f58a97fa68d7c1fb6519d2c
     },
     hi: {
         appName: "TravelTales",
@@ -422,6 +443,7 @@ export const translations = {
         recommendedSpots: "अनुशंसित स्थान",
         routes: "मार्ग",
         passes: "पास",
+        rentedVehicles: "किराये के वाहन",
         keyContacts: "महत्वपूर्ण संपर्क",
         specialtyLabel: "विशेषज्ञता",
         languagesLabel: "भाषाएं",
@@ -460,6 +482,10 @@ export const translations = {
         close: "बंद करें",
         contactDetails: "संपर्क जानकारी",
         backToDetails: "विवरण पर वापस",
+<<<<<<< HEAD
+        options: "विकल्प",
+        calling: "कॉल किया जा रहा है"
+=======
         aiMagic: "AI जादू",
         smartReschedule: "स्मार्ट समय निर्धारण",
         crowdSimulator: "भीड़ सिम्युलेटर",
@@ -471,6 +497,7 @@ export const translations = {
         overspent: "ज़्यादा खर्च हो गया?",
         rescheduleTip: "AI आपके दिन को ऑटो-एडजस्ट करेगा...",
         alternative: "विकल्प",
+<<<<<<< HEAD
         simulatedCrowd: "नकली भीड़ घनत्व",
         travelVlogs: "यात्रा व्लॉग",
         vlogDesc: "अपनी यात्रा की कल्पना करने के लिए सबसे अधिक देखे गए यात्रा व्लॉग देखें।",
@@ -487,6 +514,10 @@ export const translations = {
         hiddenGemsCard: "छिपे हुए रत्न",
         hiddenGemsDesc: "शहर में कम आंके गए स्थानों और स्थानीय रहस्यों की खोज करें।",
         viewSecrets: "रहस्य देखें"
+=======
+        simulatedCrowd: "नकली भीड़ घनत्व"
+>>>>>>> c5b1cc2b697ead4b5688616b6e60a98d2ac69e4e
+>>>>>>> 2e6032042ab9777f2f58a97fa68d7c1fb6519d2c
     },
     ru: {
         appName: "TravelTales",
@@ -582,6 +613,7 @@ export const translations = {
         recommendedSpots: "Рекомендуемые места",
         routes: "Маршруты",
         passes: "Проездные",
+        rentedVehicles: "Арендованные транспортные средства",
         keyContacts: "Важные контакты",
         specialtyLabel: "Специализация",
         languagesLabel: "Языки",
@@ -620,6 +652,10 @@ export const translations = {
         close: "Закрыть",
         contactDetails: "Контактная информация",
         backToDetails: "Назад к описанию",
+<<<<<<< HEAD
+        options: "Варианты",
+        calling: "Звоним"
+=======
         aiMagic: "Магия ИИ",
         smartReschedule: "Умное расписание",
         crowdSimulator: "Симулятор толпы",
@@ -631,6 +667,7 @@ export const translations = {
         overspent: "Потратили больше?",
         rescheduleTip: "ИИ автоматически подстроит ваш день...",
         alternative: "Альтернатива",
+<<<<<<< HEAD
         simulatedCrowd: "Симулированная плотность",
         travelVlogs: "Тревел-влоги",
         vlogDesc: "Посмотрите самые популярные тревел-влоги, чтобы визуализировать свою поездку.",
@@ -647,6 +684,10 @@ export const translations = {
         hiddenGemsCard: "Скрытые жемчужины",
         hiddenGemsDesc: "Откройте для себя недооцененные места и местные секреты города.",
         viewSecrets: "Посмотреть секреты"
+=======
+        simulatedCrowd: "Симулированная плотность"
+>>>>>>> c5b1cc2b697ead4b5688616b6e60a98d2ac69e4e
+>>>>>>> 2e6032042ab9777f2f58a97fa68d7c1fb6519d2c
     }
 };
 
