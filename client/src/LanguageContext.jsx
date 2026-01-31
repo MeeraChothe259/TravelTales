@@ -101,6 +101,7 @@ export const translations = {
         recommendedSpots: "Recommended Spots",
         routes: "Routes",
         passes: "Passes",
+        rentedVehicles: "Rented Vehicles",
         keyContacts: "Key Contacts",
         specialtyLabel: "Specialty",
         languagesLabel: "Languages",
@@ -140,6 +141,10 @@ export const translations = {
         close: "Close",
         contactDetails: "Contact Information",
         backToDetails: "Back to Details",
+<<<<<<< HEAD
+        options: "Options",
+        calling: "Calling"
+=======
         aiMagic: "AI Magic",
         smartReschedule: "Smart Reschedule",
         crowdSimulator: "Crowd Simulator",
@@ -152,6 +157,7 @@ export const translations = {
         rescheduleTip: "AI will auto-adjust your day...",
         alternative: "Alternative",
         simulatedCrowd: "Simulated Density"
+>>>>>>> c5b1cc2b697ead4b5688616b6e60a98d2ac69e4e
     },
     es: {
         appName: "TravelTales",
@@ -247,6 +253,7 @@ export const translations = {
         recommendedSpots: "Lugares Recomendados",
         routes: "Rutas",
         passes: "Pases",
+        rentedVehicles: "Vehículos de Alquiler",
         keyContacts: "Contactos Clave",
         specialtyLabel: "Especialidad",
         languagesLabel: "Idiomas",
@@ -284,6 +291,11 @@ export const translations = {
         address: "Dirección",
         close: "Cerrar",
         contactDetails: "Información de contacto",
+<<<<<<< HEAD
+        backToDetails: "Volver a Detalles",
+        options: "Opciones",
+        calling: "Llamando a"
+=======
         backToDetails: "Volver a detalles",
         aiMagic: "Magia de IA",
         smartReschedule: "Reprogramación Inteligente",
@@ -297,6 +309,7 @@ export const translations = {
         rescheduleTip: "La IA ajustará automáticamente tu día...",
         alternative: "Alternativa",
         simulatedCrowd: "Densidad Simulada"
+>>>>>>> c5b1cc2b697ead4b5688616b6e60a98d2ac69e4e
     },
     hi: {
         appName: "TravelTales",
@@ -392,6 +405,7 @@ export const translations = {
         recommendedSpots: "अनुशंसित स्थान",
         routes: "मार्ग",
         passes: "पास",
+        rentedVehicles: "किराये के वाहन",
         keyContacts: "महत्वपूर्ण संपर्क",
         specialtyLabel: "विशेषज्ञता",
         languagesLabel: "भाषाएं",
@@ -430,6 +444,10 @@ export const translations = {
         close: "बंद करें",
         contactDetails: "संपर्क जानकारी",
         backToDetails: "विवरण पर वापस",
+<<<<<<< HEAD
+        options: "विकल्प",
+        calling: "कॉल किया जा रहा है"
+=======
         aiMagic: "AI जादू",
         smartReschedule: "स्मार्ट समय निर्धारण",
         crowdSimulator: "भीड़ सिम्युलेटर",
@@ -442,6 +460,7 @@ export const translations = {
         rescheduleTip: "AI आपके दिन को ऑटो-एडजस्ट करेगा...",
         alternative: "विकल्प",
         simulatedCrowd: "नकली भीड़ घनत्व"
+>>>>>>> c5b1cc2b697ead4b5688616b6e60a98d2ac69e4e
     },
     ru: {
         appName: "TravelTales",
@@ -537,6 +556,7 @@ export const translations = {
         recommendedSpots: "Рекомендуемые места",
         routes: "Маршруты",
         passes: "Проездные",
+        rentedVehicles: "Арендованные транспортные средства",
         keyContacts: "Важные контакты",
         specialtyLabel: "Специализация",
         languagesLabel: "Языки",
@@ -575,6 +595,10 @@ export const translations = {
         close: "Закрыть",
         contactDetails: "Контактная информация",
         backToDetails: "Назад к описанию",
+<<<<<<< HEAD
+        options: "Варианты",
+        calling: "Звоним"
+=======
         aiMagic: "Магия ИИ",
         smartReschedule: "Умное расписание",
         crowdSimulator: "Симулятор толпы",
@@ -587,6 +611,7 @@ export const translations = {
         rescheduleTip: "ИИ автоматически подстроит ваш день...",
         alternative: "Альтернатива",
         simulatedCrowd: "Симулированная плотность"
+>>>>>>> c5b1cc2b697ead4b5688616b6e60a98d2ac69e4e
     }
 };
 
