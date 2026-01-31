@@ -12,7 +12,6 @@ import LocalIntelligence from './LocalIntelligence';
 const TripPlan = () => {
     const location = useLocation();
     const navigate = useNavigate();
-<<<<<<< HEAD
     const { plan } = location.state || {};
     const [selectedActivity, setSelectedActivity] = useState(null);
     const [isSaved, setIsSaved] = useState(false);
@@ -45,9 +44,6 @@ const TripPlan = () => {
             alert("Link copied to clipboard!");
         }
     };
-=======
-    const { plan } = location.state || {}; // plan now includes localIntelligence
->>>>>>> 632e7e0839e54373d54c1f10184d36216076e3be
 
     if (!plan) {
 

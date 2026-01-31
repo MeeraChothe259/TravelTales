@@ -17,8 +17,8 @@ let DefaultIcon = L.icon({
 L.Marker.prototype.options.icon = DefaultIcon;
 
 const MapExploration = ({ plan }) => {
-    // Mock distinct coordinates based on destination (Approximation for demo)
-    const center = [35.6762, 139.6503]; // Default to Tokyo
+    const [mapCenter, setMapCenter] = useState([35.6762, 139.6503]); // Default to Tokyo
+    const [isSearching, setIsSearching] = useState(false);
 
     const [activeLayers, setActiveLayers] = useState({
         places: true,
@@ -60,11 +60,42 @@ const MapExploration = ({ plan }) => {
         emergency: createCustomIcon('🏥')
     };
 
+    // Geocoding Logic: Resolve destination to coordinates
+    useEffect(() => {
+        if (!plan?.destination) return;
+
+        const geocode = async () => {
+            setIsSearching(true);
+            try {
+                const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(plan.destination)}&limit=1`);
+                const data = await response.json();
+                if (data && data.length > 0) {
+                    const { lat, lon } = data[0];
+                    setMapCenter([parseFloat(lat), parseFloat(lon)]);
+                }
+            } catch (error) {
+                console.error("Geocoding failed:", error);
+            } finally {
+                setIsSearching(false);
+            }
+        };
+
+        geocode();
+    }, [plan?.destination]);
+
+    // Component to handle map centering
+    const RecenterMap = ({ center }) => {
+        const map = useMap();
+        useEffect(() => {
+            map.setView(center, 13);
+        }, [center, map]);
+        return null;
+    };
+
     useEffect(() => {
         // Generate mock markers based on plan activities + extra categories
         const newMarkers = [];
 
-        // 1. Places (from Itinerary)
         // 1. Places (from Itinerary)
         if (plan && plan.itinerary) {
             plan.itinerary.forEach((day, dIdx) => {
@@ -73,7 +104,7 @@ const MapExploration = ({ plan }) => {
                     newMarkers.push({
                         id: `act-${dIdx}-${aIdx}`,
                         type: 'places',
-                        position: [center[0] + (Math.random() - 0.5) * 0.05, center[1] + (Math.random() - 0.5) * 0.05],
+                        position: [mapCenter[0] + (Math.random() - 0.5) * 0.05, mapCenter[1] + (Math.random() - 0.5) * 0.05],
                         title: act.title,
                         desc: `${act.time} • ${act.type}`
                     });
@@ -82,68 +113,76 @@ const MapExploration = ({ plan }) => {
         }
 
         // 2. Food Spots
-        const foodNames = ["Sakura Ramen", "Sushi Zen", "Matcha Cafe", "Street Yakitori", "Golden Curry"];
-        foodNames.forEach((name, i) => {
+        const foodSpots = [
+            { name: "Saffron & Spice", desc: "Authentic Local Cuisine • 4.9 ⭐" },
+            { name: "The Blue Terrace", desc: "Fine Dining with View • $$$" },
+            { name: "Urban Bistro", desc: "Cozy Brunch & Coffee • $$" },
+            { name: "Spicy Street Kitchen", desc: "Famous Night Market Spot • $" },
+            { name: "Velvet Lounge", desc: "Cocktails & Tapas • Late Night" }
+        ];
+        foodSpots.forEach((spot, i) => {
             newMarkers.push({
                 id: `food-${i}`,
                 type: 'food',
-                position: [center[0] + (Math.random() - 0.5) * 0.04, center[1] + (Math.random() - 0.5) * 0.04],
-                title: name,
-                desc: "4.8 Stars • $$"
+                position: [mapCenter[0] + (Math.random() - 0.5) * 0.04, mapCenter[1] + (Math.random() - 0.5) * 0.04],
+                title: spot.name,
+                desc: spot.desc
             });
         });
 
         // 3. Transport (Public)
-        const transportSpots = [
-            { name: "Central Station", desc: "Hub for all lines" },
-            { name: "North Bus Terminal", desc: "City & Intercity bus" },
-            { name: "Metro Line A", desc: "Rapid Transit" },
-            { name: "Metro Line B", desc: "Downtown Loop" }
+        const transportHubs = [
+            { name: "Grand Central Plaza", desc: "Main Railway & Metro Hub" },
+            { name: "West Gate Bus Terminal", desc: "Intercity Express Services" },
+            { name: "Waterfront Ferry Pier", desc: "Scenic River Transport" },
+            { name: "Old Town Tram Stop", desc: "Heritage Transit Line" }
         ];
-        transportSpots.forEach((t, i) => {
+        transportHubs.forEach((hub, i) => {
             newMarkers.push({
                 id: `trans-${i}`,
                 type: 'transport',
-                position: [center[0] + (Math.random() - 0.5) * 0.06, center[1] + (Math.random() - 0.5) * 0.06],
-                title: t.name,
-                desc: t.desc
+                position: [mapCenter[0] + (Math.random() - 0.5) * 0.06, mapCenter[1] + (Math.random() - 0.5) * 0.06],
+                title: hub.name,
+                desc: hub.desc
             });
         });
 
         // 4. Rental / Private Transport
-        const rentalSpots = [
-            { name: "City Bike Share", desc: "$5/hour" },
-            { name: "Zoom Car Rental", desc: "Compact & SUVs" },
-            { name: "E-Scooter Hub", desc: "Quick ride" }
+        const rentalAgencies = [
+            { name: "Velocity Bike Rentals", desc: "Daily & Hourly Rates" },
+            { name: "Prime Auto Hire", desc: "Sedans, SUVs & EVs" },
+            { name: "Swift E-Scooters", desc: "App-based unlock" },
+            { name: "Luxury Chauffeur Service", desc: "Private Airport Transfers" }
         ];
-        rentalSpots.forEach((r, i) => {
+        rentalAgencies.forEach((agency, i) => {
             newMarkers.push({
                 id: `rental-${i}`,
                 type: 'rental',
-                position: [center[0] + (Math.random() - 0.5) * 0.03, center[1] + (Math.random() - 0.5) * 0.03],
-                title: r.name,
-                desc: r.desc
+                position: [mapCenter[0] + (Math.random() - 0.5) * 0.03, mapCenter[1] + (Math.random() - 0.5) * 0.03],
+                title: agency.name,
+                desc: agency.desc
             });
         });
 
         // 5. Emergency Services
-        const emergencySpots = [
-            { name: "City General Hospital", desc: "24/7 ER" },
-            { name: "Tourist Police Station", desc: "English Support" },
-            { name: "Central Pharmacy", desc: "Open late" }
+        const emergencyFacilities = [
+            { name: "St. Jude General Hospital", desc: "24/7 Trauma & Emergency Center" },
+            { name: "Central Police Precinct", desc: "Tourist Assistance Desk" },
+            { name: "Lifeline late-night Pharmacy", desc: "Open 24 Hours" },
+            { name: "Metropolitan Fire Station", desc: "Response Unit" }
         ];
-        emergencySpots.forEach((e, i) => {
+        emergencyFacilities.forEach((facility, i) => {
             newMarkers.push({
                 id: `emerg-${i}`,
                 type: 'emergency',
-                position: [center[0] + (Math.random() - 0.5) * 0.08, center[1] + (Math.random() - 0.5) * 0.08],
-                title: e.name,
-                desc: e.desc
+                position: [mapCenter[0] + (Math.random() - 0.5) * 0.08, mapCenter[1] + (Math.random() - 0.5) * 0.08],
+                title: facility.name,
+                desc: facility.desc
             });
         });
 
         setMarkers(newMarkers);
-    }, [plan]);
+    }, [plan, mapCenter]);
 
     const toggleLayer = (layer) => {
         setActiveLayers(prev => ({ ...prev, [layer]: !prev[layer] }));
@@ -167,7 +206,8 @@ const MapExploration = ({ plan }) => {
             </div>
 
             <div style={{ flex: 1, position: 'relative' }}>
-                <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }}>
+                <MapContainer center={mapCenter} zoom={13} style={{ height: '100%', width: '100%' }}>
+                    <RecenterMap center={mapCenter} />
                     <TileLayer
                         url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
                         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'

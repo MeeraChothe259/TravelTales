@@ -142,13 +142,18 @@ const generateMockPlan = (data) => {
         };
     };
 
+    // --- CALCULATE DURATION ---
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    const diffTime = Math.abs(end - start);
+    const numDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+
     // --- GENERATE DAYS ---
     const days = [];
-    const tripLength = 3; // Mocking 3 days
-    for (let i = 1; i <= tripLength; i++) {
+    for (let i = 1; i <= numDays; i++) {
         days.push({
             day: i,
-            date: new Date(new Date(startDate).getTime() + (i - 1) * 86400000).toDateString(),
+            date: new Date(start.getTime() + (i - 1) * 86400000).toDateString(),
             weather: rnd(['Sunny ☀️', 'Clear 🌤️', 'Breezy 🍃', 'Partly Cloudy ⛅']),
             morning: getSlot(dest, 'Morning 🌅'),
             afternoon: getSlot(dest, 'Afternoon ☀️'),
@@ -197,18 +202,14 @@ const generateMockPlan = (data) => {
         travelers: partners,
         vibe: mood,
         budgetSummary: {
-            total: dailyCost * tripLength * (partners === 'Solo' ? 1 : 2),
-            perPerson: dailyCost * tripLength,
+            total: dailyCost * numDays * (partners === 'Solo' ? 1 : 2),
+            perPerson: dailyCost * numDays,
             level: budgetLevel,
             currency: 'USD'
         },
         itinerary: days,
-<<<<<<< HEAD
-        highlights: preferences && preferences.length > 0 ? preferences : ['Culture', 'Sightseeing', 'Relaxation']
-=======
         highlights: allHighlights,
         localIntelligence
->>>>>>> 632e7e0839e54373d54c1f10184d36216076e3be
     };
 };
 
