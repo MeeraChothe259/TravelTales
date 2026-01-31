@@ -1,232 +1,190 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowLeft, MapPin, Sparkles, Info } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Sparkles, MapPin, Info, ExternalLink, X, Globe } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 import { useLanguage } from './LanguageContext';
+
+// Fix for default Leaflet icons
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+    iconUrl: icon,
+    shadowUrl: iconShadow,
+    iconAnchor: [12, 41]
+});
+L.Marker.prototype.options.icon = DefaultIcon;
 
 const HiddenGemsPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { t } = useLanguage();
-    const { hiddenGems, destination } = location.state || { hiddenGems: [], destination: 'your destination' };
+    const { hiddenGems, destination } = location.state || { hiddenGems: [], destination: 'Unknown' };
+    const [selectedGemForMap, setSelectedGemForMap] = React.useState(null);
 
     return (
-        <div style={{ minHeight: '100vh', background: '#0F172A', color: 'white', padding: '2rem 5% 5rem 5%' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--bg-main)', color: 'var(--text-main)', padding: '2rem' }}>
             {/* Header */}
-            <header style={{ marginBottom: '4rem', display: 'flex', alignItems: 'center', gap: '2rem' }}>
+            <header style={{ maxWidth: '1200px', margin: '0 auto 3rem auto', display: 'flex', alignItems: 'center', gap: '2rem' }}>
                 <button
                     onClick={() => navigate(-1)}
-                    style={{
-                        background: 'rgba(255,255,255,0.05)',
-                        border: '1px solid rgba(255,255,255,0.1)',
-                        borderRadius: '16px',
-                        width: '50px',
-                        height: '50px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        color: 'white',
-                        transition: 'all 0.3s ease'
-                    }}
-                    onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.1)'}
-                    onMouseLeave={(e) => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
+                    style={{ background: 'white', border: '1px solid var(--border)', borderRadius: '50%', p: '0.8rem', cursor: 'pointer', display: 'flex' }}
                 >
-                    <ArrowLeft size={24} />
+                    <ArrowLeft size={24} color="var(--primary)" />
                 </button>
                 <div>
-                    <motion.h1
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        style={{
-                            fontSize: '3rem',
-                            margin: 0,
-                            fontWeight: '800',
-                            background: 'linear-gradient(to right, #A855F7, #EC4899, #F43F5E)',
-                            WebkitBackgroundClip: 'text',
-                            WebkitTextFillColor: 'transparent',
-                            letterSpacing: '-0.02em'
-                        }}
-                    >
-                        Hidden Gems: {destination}
-                    </motion.h1>
-                    <p style={{ opacity: 0.6, fontSize: '1.2rem', marginTop: '0.5rem' }}>Underrated spots that locals keep to themselves</p>
+                    <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: '800' }}>
+                        {t('hiddenGemsCard')} - {destination}
+                    </h1>
+                    <p style={{ color: 'var(--text-sub)', fontSize: '1.1rem' }}>
+                        {t('hiddenGemsDesc')}
+                    </p>
                 </div>
             </header>
 
-            {/* Gems Grid */}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))',
-                gap: '3rem'
-            }}>
-                {hiddenGems && hiddenGems.length > 0 ? hiddenGems.map((gem, index) => (
-                    <motion.div
-                        key={index}
-                        initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.15 }}
-                        whileHover={{ y: -10 }}
-                        style={{
-                            background: 'rgba(30, 41, 59, 0.5)',
-                            backdropFilter: 'blur(16px)',
-                            borderRadius: '32px',
-                            overflow: 'hidden',
-                            border: '1px solid rgba(255,255,255,0.08)',
-                            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-                            position: 'relative'
-                        }}
-                    >
-                        {/* Image Section */}
-                        <div style={{ position: 'relative', height: '300px' }}>
-                            <img
-                                src={gem.imageUrl || 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80'}
-                                alt={gem.title}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
-                            <div style={{
-                                position: 'absolute',
-                                inset: 0,
-                                background: 'linear-gradient(to bottom, transparent 0%, rgba(15, 23, 42, 0.9) 100%)'
-                            }} />
-                            <div style={{
-                                position: 'absolute',
-                                top: '20px',
-                                right: '20px',
-                                background: 'rgba(168, 85, 247, 0.9)',
-                                padding: '8px 16px',
-                                borderRadius: '12px',
-                                fontSize: '0.8rem',
-                                fontWeight: 'bold',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.5rem',
-                                boxShadow: '0 4px 12px rgba(168, 85, 247, 0.4)'
-                            }}>
-                                <Sparkles size={14} /> HIDDEN GEM
-                            </div>
-                            <div style={{ position: 'absolute', bottom: '20px', left: '25px', right: '25px' }}>
-                                <h2 style={{ fontSize: '2rem', margin: 0, fontWeight: '700' }}>{gem.title}</h2>
-                            </div>
-                        </div>
-
-                        {/* Content Section */}
-                        <div style={{ padding: '2rem' }}>
-                            <p style={{ fontSize: '1.1rem', lineHeight: '1.6', opacity: 0.8, margin: '0 0 2rem 0' }}>
-                                {gem.description}
-                            </p>
-
-                            <div style={{
-                                background: 'rgba(168, 85, 247, 0.1)',
-                                padding: '1.5rem',
-                                borderRadius: '20px',
-                                border: '1px solid rgba(168, 85, 247, 0.2)',
-                                marginBottom: '2rem'
-                            }}>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', color: '#C084FC', marginBottom: '0.75rem' }}>
-                                    <Info size={18} />
-                                    <span style={{ fontWeight: 'bold', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Why it's underrated</span>
-                                </div>
-                                <p style={{ margin: 0, fontSize: '1rem', color: '#E9D5FF', fontStyle: 'italic' }}>
-                                    "{gem.whyUnderrated}"
-                                </p>
-                            </div>
-
-                            <button
-                                onClick={() => window.open(`https://www.google.com/maps/search/?api=1&query=${gem.coords.lat},${gem.coords.lng}`, '_blank')}
-                                style={{
-                                    width: '100%',
-                                    background: 'white',
-                                    color: '#0F172A',
-                                    border: 'none',
-                                    padding: '1.25rem',
-                                    borderRadius: '16px',
-                                    fontWeight: '700',
-                                    fontSize: '1rem',
-                                    cursor: 'pointer',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    gap: '0.75rem',
-                                    transition: 'all 0.3s ease'
-                                }}
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.transform = 'scale(1.02)';
-                                    e.currentTarget.style.boxShadow = '0 10px 20px rgba(255,255,255,0.1)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.transform = 'scale(1)';
-                                    e.currentTarget.style.boxShadow = 'none';
-                                }}
+            {/* Content Grid */}
+            <main style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                {hiddenGems.length > 0 ? (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem' }}>
+                        {hiddenGems.map((gem, index) => (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                className="card"
+                                style={{ overflow: 'hidden', padding: 0, borderRadius: '24px', border: 'none', boxShadow: '0 15px 35px rgba(0,0,0,0.08)' }}
                             >
-                                <MapPin size={20} /> Get Directions
-                            </button>
+                                <div style={{ height: '220px', position: 'relative' }}>
+                                    <img
+                                        src={gem.imageUrl || 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80'}
+                                        alt={gem.title}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                    <div style={{ position: 'absolute', top: '15px', right: '15px', background: 'rgba(255,255,255,0.9)', padding: '6px 12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        <Sparkles size={14} /> HIDDEN GEM
+                                    </div>
+                                </div>
+                                <div style={{ padding: '1.5rem' }}>
+                                    <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--primary)' }}>{gem.title}</h3>
+                                    <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginBottom: '1.2rem', lineHeight: '1.6' }}>
+                                        {gem.description}
+                                    </p>
+
+                                    <div style={{ background: 'rgba(124, 58, 237, 0.05)', padding: '1rem', borderRadius: '16px', borderLeft: '4px solid #7C3AED' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#7C3AED', fontWeight: 'bold', fontSize: '0.85rem', marginBottom: '4px' }}>
+                                            <Info size={14} /> WHY IT'S UNDERRATED
+                                        </div>
+                                        <p style={{ fontSize: '0.85rem', margin: 0, color: 'var(--text-sub)' }}>
+                                            {gem.whyUnderrated}
+                                        </p>
+                                    </div>
+
+                                    <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
+                                        <button
+                                            className="btn btn-primary"
+                                            style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                                            onClick={() => setSelectedGemForMap(gem)}
+                                        >
+                                            <MapPin size={18} /> View on Map
+                                        </button>
+                                        <button className="btn" style={{ background: 'white', border: '1px solid var(--border)', color: 'var(--text-main)' }}>
+                                            <ExternalLink size={18} />
+                                        </button>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ textAlign: 'center', padding: '5rem 0' }}>
+                        <div style={{ background: 'rgba(0,0,0,0.05)', p: '2rem', borderRadius: '50%', width: '100px', height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem auto' }}>
+                            <Sparkles size={48} color="var(--border)" />
                         </div>
-                    </motion.div>
-                )) : (
-                    <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '10rem 0' }}>
-                        <Sparkles size={80} color="rgba(168, 85, 247, 0.2)" style={{ marginBottom: '2rem' }} />
-                        <h3 style={{ fontSize: '2rem', opacity: 0.8 }}>Missing Secrets?</h3>
-                        <p style={{ opacity: 0.6, maxWidth: '500px', margin: '1rem auto 2rem auto' }}>
-                            It looks like this trip plan was generated before the "Hidden Gems" feature was added. Generate a fresh plan to unlock city secrets!
-                        </p>
-                        <button
-                            onClick={() => navigate('/onboarding', { state: { prefilledData: { destination } } })}
-                            style={{
-                                background: 'linear-gradient(to right, #A855F7, #EC4899)',
-                                color: 'white',
-                                border: 'none',
-                                padding: '1rem 2.5rem',
-                                borderRadius: '50px',
-                                fontWeight: '700',
-                                cursor: 'pointer',
-                                boxShadow: '0 10px 20px rgba(168, 85, 247, 0.3)'
-                            }}
-                        >
-                            Generate Fresh Plan
-                        </button>
+                        <h2>{t('noPlanFound')}</h2>
+                        <p>{t('checkBackLater')}</p>
                     </div>
                 )}
-            </div>
+            </main>
 
-            {/* Premium CTA Footer */}
-            <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                style={{
-                    marginTop: '8rem',
-                    padding: '4rem',
-                    background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%)',
-                    borderRadius: '48px',
-                    textAlign: 'center',
-                    border: '1px solid rgba(255,255,255,0.05)'
-                }}
-            >
-                <div style={{ display: 'inline-flex', padding: '1rem', background: 'rgba(255,255,255,0.05)', borderRadius: '24px', marginBottom: '2rem' }}>
-                    <Sparkles size={32} color="#A855F7" />
-                </div>
-                <h2 style={{ fontSize: '2.5rem', margin: '0 0 1rem 0' }}>Explore Like a Local</h2>
-                <p style={{ maxWidth: '700px', margin: '0 auto 3rem auto', opacity: 0.6, fontSize: '1.2rem', lineHeight: '1.6' }}>
-                    Our AI cross-references social data, local blogs, and historical archives to find places that haven't been "discovered" by the masses yet. Enjoy the quiet side of {destination}.
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '3rem' }}>
-                    <div>
-                        <div style={{ fontSize: '2rem', fontWeight: '800', color: '#A855F7' }}>Zero</div>
-                        <div style={{ fontSize: '0.9rem', opacity: 0.4, textTransform: 'uppercase' }}>Crowds</div>
-                    </div>
-                    <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }} />
-                    <div>
-                        <div style={{ fontSize: '2rem', fontWeight: '800', color: '#EC4899' }}>100%</div>
-                        <div style={{ fontSize: '0.9rem', opacity: 0.4, textTransform: 'uppercase' }}>Authentic</div>
-                    </div>
-                    <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }} />
-                    <div>
-                        <div style={{ fontSize: '2rem', fontWeight: '800', color: '#F43F5E' }}>Verified</div>
-                        <div style={{ fontSize: '0.9rem', opacity: 0.4, textTransform: 'uppercase' }}>Local Spots</div>
-                    </div>
-                </div>
-            </motion.div>
+            {/* Map Modal */}
+            <AnimatePresence>
+                {selectedGemForMap && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        style={{
+                            position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh',
+                            background: 'rgba(0,0,0,0.8)', backdropFilter: 'blur(5px)',
+                            zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            padding: '2rem'
+                        }}
+                        onClick={() => setSelectedGemForMap(null)}
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            style={{
+                                width: '100%', maxWidth: '900px', height: '600px',
+                                background: 'white', borderRadius: '24px', overflow: 'hidden',
+                                display: 'flex', flexDirection: 'column', position: 'relative'
+                            }}
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <button
+                                onClick={() => setSelectedGemForMap(null)}
+                                style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', zIndex: 1001, background: 'white', border: 'none', borderRadius: '50%', width: '40px', height: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 5px 15px rgba(0,0,0,0.2)' }}
+                            >
+                                <X size={24} />
+                            </button>
+
+                            <div style={{ padding: '1.5rem', background: 'white', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{ background: 'var(--primary-light)', p: '0.5rem', borderRadius: '12px' }}>
+                                    <MapPin size={24} color="var(--primary)" />
+                                </div>
+                                <div>
+                                    <h3 style={{ margin: 0 }}>{selectedGemForMap.title}</h3>
+                                    <p style={{ margin: 0, fontSize: '0.85rem', color: 'var(--text-sub)' }}>{destination} • Hidden Gem Location</p>
+                                </div>
+                            </div>
+
+                            <div style={{ flex: 1, position: 'relative' }}>
+                                <MapContainer
+                                    center={[selectedGemForMap.coords.lat, selectedGemForMap.coords.lng]}
+                                    zoom={15}
+                                    style={{ height: '100%', width: '100%' }}
+                                >
+                                    <TileLayer
+                                        url="https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png"
+                                    />
+                                    <Marker position={[selectedGemForMap.coords.lat, selectedGemForMap.coords.lng]}>
+                                        <Popup>
+                                            <div style={{ textAlign: 'center' }}>
+                                                <strong>{selectedGemForMap.title}</strong>
+                                                <p style={{ margin: '5px 0 0 0', fontSize: '0.8rem' }}>Authentic local secret</p>
+                                            </div>
+                                        </Popup>
+                                    </Marker>
+                                </MapContainer>
+                            </div>
+
+                            <div style={{ padding: '1.5rem', background: '#F8FAFC', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem' }}>
+                                    <Globe size={16} /> Open in Street View or local maps for navigation
+                                </div>
+                                <button className="btn btn-primary" onClick={() => window.open(`https://www.google.com/maps?q=${selectedGemForMap.coords.lat},${selectedGemForMap.coords.lng}`, '_blank')}>
+                                    Open in Google Maps
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
 };

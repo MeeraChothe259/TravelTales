@@ -481,59 +481,101 @@ input[type=range]::-webkit-slider-runnable-track {
   border-radius: 2px;
 }
 
-/* --- Trip Plan Timeline --- */
+/* --- Trip Plan Timeline (Vertical Refactor) --- */
 .day-card {
   background: white;
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-light);
   overflow: hidden;
-  margin-bottom: 2rem;
+  margin-bottom: 3rem;
   box-shadow: var(--shadow-sm);
 }
 
 .day-header {
   background: #F8FAFC;
-  padding: 1.5rem;
+  padding: 1.5rem 2rem;
   border-bottom: 1px solid var(--border-light);
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
-.timeline-grid {
-  display: grid;
-  grid-template-columns: 1fr;
+.timeline-container {
+  padding: 1.5rem 2rem;
+  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: flex;
+  gap: 1.5rem;
+  padding-bottom: 2rem;
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary-light) transparent;
 }
 
-@media (min-width: 768px) {
-  .timeline-grid {
-    grid-template-columns: 1fr 1fr 1fr;
-    /* Morning, Afternoon, Evening */
-  }
+.timeline-container::-webkit-scrollbar {
+  height: 6px;
+}
+
+.timeline-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.timeline-container::-webkit-scrollbar-thumb {
+  background-color: var(--primary-light);
+  border-radius: 10px;
+}
+
+.timeline-item {
+  min-width: 350px;
+  max-width: 400px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 2;
 }
 
 .time-slot {
+  background: white;
   padding: 1.5rem;
-  border-bottom: 1px solid var(--border-light);
-  border-right: 1px solid transparent;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  height: 100%;
 }
 
 .time-slot:hover {
-  background-color: var(--primary-light);
-  transform: scale(1.02);
-  z-index: 1;
+  border-color: var(--primary);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+  background: var(--primary-light);
 }
 
-@media (min-width: 768px) {
-  .time-slot {
-    border-bottom: none;
-    border-right: 1px solid var(--border-light);
+.slot-time-col {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border-light);
+  padding-bottom: 0.75rem;
+  width: 100%;
+}
+
+.slot-content-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 768px) {
+  .timeline-container {
+    padding: 1rem;
+    gap: 1rem;
   }
 
-  .time-slot:last-child {
-    border-right: none;
+  .timeline-item {
+    min-width: 280px;
   }
 }
 

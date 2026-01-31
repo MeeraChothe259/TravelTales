@@ -1,154 +1,115 @@
 import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Play, Youtube, ExternalLink } from 'lucide-react';
+import { ArrowLeft, Youtube, Play, ExternalLink, User } from 'lucide-react';
 import { useLanguage } from './LanguageContext';
 
 const VlogsPage = () => {
     const location = useLocation();
     const navigate = useNavigate();
     const { t } = useLanguage();
-    const { vlogs, destination } = location.state || { vlogs: [], destination: 'your destination' };
+    const { vlogs, destination } = location.state || { vlogs: [], destination: 'Unknown' };
 
     return (
-        <div style={{ minHeight: '100vh', background: '#0F172A', color: 'white', padding: '2rem 5% 5rem 5%' }}>
+        <div style={{ minHeight: '100vh', background: 'var(--bg-main)', color: 'var(--text-main)', padding: '2rem' }}>
             {/* Header */}
-            <header style={{ marginBottom: '3rem', display: 'flex', alignItems: 'center', gap: '2rem' }}>
+            <header style={{ maxWidth: '1200px', margin: '0 auto 3rem auto', display: 'flex', alignItems: 'center', gap: '2rem' }}>
                 <button
                     onClick={() => navigate(-1)}
-                    style={{
-                        background: 'rgba(255,255,255,0.1)',
-                        border: 'none',
-                        borderRadius: '50%',
-                        width: '50px',
-                        height: '50px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
-                        color: 'white',
-                        transition: 'all 0.3s ease'
-                    }}
+                    style={{ background: 'white', border: '1px solid var(--border)', borderRadius: '50%', padding: '0.8rem', cursor: 'pointer', display: 'flex' }}
                 >
-                    <ArrowLeft size={24} />
+                    <ArrowLeft size={24} color="#FF0000" />
                 </button>
                 <div>
-                    <h1 style={{ fontSize: '2.5rem', margin: 0, background: 'linear-gradient(to right, #F87171, #F472B6, #FB923C)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+                    <h1 style={{ margin: 0, fontSize: '2.5rem', fontWeight: '800' }}>
                         {t('vlogsTitle')} {destination}
                     </h1>
-                    <p style={{ opacity: 0.7, fontSize: '1.1rem' }}>{t('vlogsSub')}</p>
+                    <p style={{ color: 'var(--text-sub)', fontSize: '1.1rem' }}>
+                        {t('vlogsSub')}
+                    </p>
                 </div>
             </header>
 
-            {/* Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem' }}>
-                {vlogs && vlogs.length > 0 ? vlogs.map((vlog, index) => (
-                    <motion.div
-                        key={index}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: index * 0.1 }}
-                        whileHover={{ y: -5 }}
-                        style={{
-                            background: 'rgba(30, 41, 59, 0.7)',
-                            backdropFilter: 'blur(10px)',
-                            borderRadius: '24px',
-                            overflow: 'hidden',
-                            border: '1px solid rgba(255,255,255,0.1)',
-                            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.3)'
-                        }}
-                    >
-                        {/* Thumbnail Container */}
-                        <div style={{ position: 'relative', height: '200px', cursor: 'pointer' }} onClick={() => window.open(vlog.url, '_blank')}>
-                            <img
-                                src={vlog.thumbnail || `https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80`}
-                                alt={vlog.title}
-                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                            />
-                            <div style={{
-                                position: 'absolute',
-                                inset: 0,
-                                background: 'rgba(0,0,0,0.3)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                opacity: 0,
-                                transition: 'opacity 0.3s ease'
-                            }}
-                                onMouseEnter={(e) => e.currentTarget.style.opacity = 1}
-                                onMouseLeave={(e) => e.currentTarget.style.opacity = 0}
+            {/* Content Grid */}
+            <main style={{ maxWidth: '1200px', margin: '0 auto' }}>
+                {vlogs.length > 0 ? (
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '2.5rem' }}>
+                        {vlogs.map((vlog, index) => (
+                            <motion.div
+                                key={index}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                transition={{ delay: index * 0.1 }}
+                                style={{ display: 'flex', flexDirection: 'column', gap: '1rem', cursor: 'pointer' }}
+                                onClick={() => window.open(vlog.url, '_blank')}
                             >
-                                <div style={{ background: '#FF0000', borderRadius: '50%', padding: '1rem', color: 'white' }}>
-                                    <Play size={32} fill="white" />
-                                </div>
-                            </div>
-                            <div style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(0,0,0,0.8)', padding: '2px 8px', borderRadius: '4px', fontSize: '0.8rem' }}>
-                                <Youtube size={14} color="#FF0000" style={{ verticalAlign: 'middle', marginRight: '4px' }} />
-                                YouTube
-                            </div>
-                        </div>
-
-                        {/* Content */}
-                        <div style={{ padding: '1.5rem' }}>
-                            <h3 style={{ margin: '0 0 0.5rem 0', fontSize: '1.2rem', lineHeight: '1.4', height: '3.4em', overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
-                                {vlog.title}
-                            </h3>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                <span style={{ color: 'rgba(255,255,255,0.6)', fontSize: '0.9rem' }}>By {vlog.youtuber}</span>
-                                <button
-                                    onClick={() => window.open(vlog.url, '_blank')}
-                                    style={{
-                                        background: 'transparent',
-                                        border: '1px solid rgba(255,255,255,0.2)',
-                                        color: 'white',
-                                        padding: '0.5rem 1rem',
-                                        borderRadius: '50px',
-                                        cursor: 'pointer',
-                                        fontSize: '0.85rem',
+                                <div style={{
+                                    width: '100%',
+                                    aspectRatio: '16/9',
+                                    borderRadius: '16px',
+                                    overflow: 'hidden',
+                                    position: 'relative',
+                                    boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
+                                }}>
+                                    <img
+                                        src={vlog.thumbnail}
+                                        alt={vlog.title}
+                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                    />
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        width: '100%',
+                                        height: '100%',
+                                        background: 'rgba(0,0,0,0.2)',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '0.5rem'
-                                    }}
-                                >
-                                    {t('watchNow')} <ExternalLink size={14} />
-                                </button>
-                            </div>
+                                        justifyContent: 'center',
+                                        opacity: 0,
+                                        transition: 'opacity 0.3s ease',
+                                    }} className="vlog-overlay">
+                                        <div style={{ background: 'white', borderRadius: '50%', padding: '1rem' }}>
+                                            <Play color="#FF0000" fill="#FF0000" size={32} />
+                                        </div>
+                                    </div>
+                                    <div style={{ position: 'absolute', bottom: '10px', right: '10px', background: 'rgba(0,0,0,0.8)', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 'bold' }}>
+                                        YouTube
+                                    </div>
+                                </div>
+                                <div style={{ display: 'flex', gap: '12px' }}>
+                                    <div style={{ width: '40px', height: '40px', background: 'var(--border)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                                        <User size={20} color="var(--text-sub)" />
+                                    </div>
+                                    <div style={{ flex: 1 }}>
+                                        <h3 style={{ margin: '0 0 4px 0', fontSize: '1rem', fontWeight: '600', lineHeight: '1.4', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
+                                            {vlog.title}
+                                        </h3>
+                                        <div style={{ color: 'var(--text-sub)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            {vlog.youtuber} • <ExternalLink size={12} /> Watch Now
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                ) : (
+                    <div style={{ textAlign: 'center', padding: '5rem 0' }}>
+                        <div style={{ background: 'rgba(255,0,0,0.05)', p: '2rem', borderRadius: '50%', width: '100px', height: '100px', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 2rem auto' }}>
+                            <Youtube size={48} color="#FF0000" />
                         </div>
-                    </motion.div>
-                )) : (
-                    <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '5rem' }}>
-                        <Youtube size={64} color="rgba(255,255,255,0.1)" style={{ marginBottom: '1rem' }} />
-                        <h3>{t('noVlogsFound')}</h3>
+                        <h2>{t('noVlogsFound')}</h2>
                         <p>{t('checkBackLater')}</p>
                     </div>
                 )}
-            </div>
+            </main>
 
-            {/* Premium Call to Action */}
-            <div style={{
-                marginTop: '5rem',
-                background: 'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%)',
-                borderRadius: '32px',
-                padding: '3rem',
-                textAlign: 'center',
-                border: '1px solid rgba(255,255,255,0.05)'
-            }}>
-                <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>{t('visualizeJourney')}</h2>
-                <p style={{ maxWidth: '600px', margin: '0 auto 2rem auto', opacity: 0.7 }}>
-                    {t('vlogAuthenticDesc').replace('{destination}', destination)}
-                </p>
-                <div style={{ display: 'flex', justifyContent: 'center', gap: '3rem' }}>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#F87171' }}>4K</div>
-                        <div style={{ fontSize: '0.8rem', opacity: 0.5 }}>{t('experience')}</div>
-                    </div>
-                    <div style={{ width: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
-                    <div style={{ textAlign: 'center' }}>
-                        <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#F472B6' }}>HD+</div>
-                        <div style={{ fontSize: '0.8rem', opacity: 0.5 }}>{t('quality')}</div>
-                    </div>
-                </div>
-            </div>
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                div:hover > .vlog-overlay {
+                    opacity: 1 !important;
+                }
+            `}} />
         </div>
     );
 };

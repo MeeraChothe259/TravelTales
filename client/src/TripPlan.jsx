@@ -190,15 +190,26 @@ const TripPlan = () => {
                                     </div>
                                 </div>
 
-                                {/* Timeline Grid - Full Day Schedule */}
-                                <div className="timeline-grid">
-                                    {day.wakeup && <ActivitySlot label="🌅 Wake-up" data={day.wakeup} onSelect={setSelectedActivity} t={t} />}
-                                    {day.breakfast && <ActivitySlot label="🍳 Breakfast" data={day.breakfast} onSelect={setSelectedActivity} t={t} />}
-                                    <ActivitySlot label={t('morning')} data={day.morning} onSelect={setSelectedActivity} t={t} />
-                                    {day.lunch && <ActivitySlot label="🍽️ Lunch" data={day.lunch} onSelect={setSelectedActivity} t={t} />}
-                                    <ActivitySlot label={t('afternoon')} data={day.afternoon} onSelect={setSelectedActivity} t={t} />
-                                    <ActivitySlot label={t('evening')} data={day.evening} onSelect={setSelectedActivity} t={t} />
-                                    {day.dinner && <ActivitySlot label="🍷 Dinner" data={day.dinner} onSelect={setSelectedActivity} t={t} />}
+                                {/* Activities Horizontal Row */}
+                                <div className="timeline-container">
+                                    {[
+                                        { label: "🌅 Wake-up", data: day.wakeup },
+                                        { label: "🍳 Breakfast", data: day.breakfast },
+                                        { label: t('morning'), data: day.morning },
+                                        { label: "🍽️ Lunch", data: day.lunch },
+                                        { label: t('afternoon'), data: day.afternoon },
+                                        { label: t('evening'), data: day.evening },
+                                        { label: "🍷 Dinner", data: day.dinner }
+                                    ].filter(slot => slot.data).map((slot, sIdx) => (
+                                        <div key={sIdx} className="timeline-item">
+                                            <ActivitySlot
+                                                label={slot.label}
+                                                data={slot.data}
+                                                onSelect={setSelectedActivity}
+                                                t={t}
+                                            />
+                                        </div>
+                                    ))}
                                 </div>
                             </motion.div>
                         ))}
@@ -523,68 +534,71 @@ const TripPlan = () => {
 
 const ActivitySlot = ({ label, data, onSelect, t }) => (
     <div className="time-slot" onClick={() => onSelect(data)}>
-        <span className="slot-label">{label}</span>
-        <div className="activity-title">{data.title}</div>
-
-        <div className="meta-row">
-            <span className="meta-item"><Clock size={14} /> {data.duration}</span>
-            <span className="meta-item"><Ticket size={14} /> {data.cost}</span>
-        </div>
-        <div className="meta-row" style={{ marginTop: '-0.5rem' }}>
-            <span className="meta-item"><MapPin size={14} /> {data.travelTime} {t('away')}</span>
+        <div className="slot-time-col">
+            <span className="slot-label">{label}</span>
+            <div style={{ color: 'var(--primary)', fontWeight: 'bold', fontSize: '0.85rem' }}>
+                {data.time || data.duration}
+            </div>
         </div>
 
-        <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            {data.safeToSkip ? (
-                <span className="tag tag-skip">{t('safeToSkip')}</span>
-            ) : (
-                <span className="tag tag-essential">{t('mustDo')}</span>
-            )}
-        </div>
+        <div className="slot-content-col">
+            <div className="activity-title">{data.title}</div>
 
-        {data.crowdDensity && (
-            <div style={{ marginTop: '0.8rem', paddingTop: '0.8rem', borderTop: '1px solid rgba(0,0,0,0.05)' }}>
-                <div className="flex justify-between items-center">
-                    <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Users size={12} /> {t('crowdDensity')}
-                    </span>
-                    <span style={{
-                        fontSize: '0.75rem',
-                        fontWeight: 'bold',
-                        color: parseInt(data.crowdDensity) > 70 ? 'var(--error)' : parseInt(data.crowdDensity) > 40 ? '#F59E0B' : 'var(--success)'
-                    }}>
-                        {data.crowdDensity}
-                    </span>
-                </div>
-                <div style={{ height: '4px', background: 'rgba(0,0,0,0.05)', borderRadius: '10px', marginTop: '4px', overflow: 'hidden' }}>
-                    <div style={{
-                        height: '100%',
-                        width: data.crowdDensity,
-                        background: parseInt(data.crowdDensity) > 70 ? 'var(--error)' : parseInt(data.crowdDensity) > 40 ? '#F59E0B' : 'var(--success)',
-                        borderRadius: '10px'
-                    }} />
-                </div>
-                {data.bestTime && (
-                    <div style={{ marginTop: '6px', fontSize: '0.7rem', color: 'var(--primary)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                        <Zap size={10} fill="currentColor" /> {t('bestTimeVisit')}: {data.bestTime}
-                    </div>
+            <div className="meta-row">
+                <span className="meta-item"><Clock size={14} /> {data.duration}</span>
+                <span className="meta-item"><Ticket size={14} /> {data.cost}</span>
+                <span className="meta-item"><MapPin size={14} /> {data.travelTime} {t('away')}</span>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem' }}>
+                {data.safeToSkip ? (
+                    <span className="tag tag-skip">{t('safeToSkip')}</span>
+                ) : (
+                    <span className="tag tag-essential">{t('mustDo')}</span>
                 )}
             </div>
-        )}
 
-        {!data.safeToSkip && (
-            <div className="regret-box">
-                <span className="regret-label flex items-center gap-1">
-                    <Frown size={12} /> {t('fomoLevel')}: {data.regretProb}
-                </span>
-                <div className="regret-bar">
-                    <div
-                        className="regret-fill"
-                        style={{ width: data.regretProb }}
-                    ></div>
+            {data.crowdDensity && (
+                <div style={{ background: 'rgba(0,0,0,0.02)', padding: '0.8rem', borderRadius: '12px' }}>
+                    <div className="flex justify-between items-center mb-1">
+                        <span style={{ fontSize: '0.75rem', fontWeight: '600', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Users size={12} /> {t('crowdDensity')}
+                        </span>
+                        <span style={{
+                            fontSize: '0.75rem',
+                            fontWeight: 'bold',
+                            color: parseInt(data.crowdDensity) > 70 ? 'var(--error)' : parseInt(data.crowdDensity) > 40 ? '#F59E0B' : 'var(--success)'
+                        }}>
+                            {data.crowdDensity}
+                        </span>
+                    </div>
+                    <div style={{ height: '4px', background: 'rgba(0,0,0,0.05)', borderRadius: '10px', overflow: 'hidden' }}>
+                        <div style={{
+                            height: '100%',
+                            width: data.crowdDensity,
+                            background: parseInt(data.crowdDensity) > 70 ? 'var(--error)' : parseInt(data.crowdDensity) > 40 ? '#F59E0B' : 'var(--success)',
+                            borderRadius: '10px'
+                        }} />
+                    </div>
+                    {data.bestTime && (
+                        <div style={{ marginTop: '6px', fontSize: '0.7rem', color: 'var(--primary)', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <Zap size={10} fill="currentColor" /> {t('bestTimeVisit')}: {data.bestTime}
+                        </div>
+                    )}
                 </div>
-            </div>
-        )}
+            )}
+
+            {!data.safeToSkip && data.regretProb && (
+                <div className="regret-box" style={{ marginTop: '1rem' }}>
+                    <span className="regret-label flex items-center gap-1">
+                        <Frown size={12} /> {t('fomoLevel')}: {data.regretProb}
+                    </span>
+                    <div className="regret-bar">
+                        <div className="regret-fill" style={{ width: data.regretProb }}></div>
+                    </div>
+                </div>
+            )}
+        </div>
     </div>
 );
 
