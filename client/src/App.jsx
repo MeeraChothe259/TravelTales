@@ -5,6 +5,7 @@ import LandingPage from './LandingPage';
 import Onboarding from './Onboarding';
 import TripPlan from './TripPlan';
 import BudgetCurrencyPage from './BudgetCurrencyPage';
+import HotelSuggestionsPage from './HotelSuggestionsPage';
 import Navbar from './components/Navbar';
 
 function App() {
@@ -16,6 +17,7 @@ function App() {
           <Route path="/plan" element={<><Navbar /><Onboarding /></>} />
           <Route path="/trip" element={<><Navbar /><TripPlan /></>} />
           <Route path="/budget" element={<BudgetCurrencyPage />} />
+          <Route path="/hotels" element={<HotelSuggestionsPage />} />
         </Routes>
       </Router>
     </LanguageProvider>

@@ -13,27 +13,38 @@ app.get('/', (req, res) => {
     res.send('TravelTales API is running!');
 });
 
+const { generateRealPlan } = require('./geminiService');
+
+
 // Routes
-app.post('/api/generate-plan', (req, res) => {
+app.post('/api/generate-plan', async (req, res) => {
+    const formData = req.body;
+    console.log("Received AI Plan Request for:", formData.destination);
+
     try {
-        const formData = req.body;
-        console.log("Received Request:", formData);
+        // 1. Try Real AI Generation
+        const plan = await generateRealPlan(formData);
+        console.log("✅ Successfully generated REAL plan for:", formData.destination);
+        res.json({ success: true, plan });
 
-        // Simulate AI Delay (1.5 seconds)
-        setTimeout(() => {
-            try {
-                const plan = generateMockPlan(formData);
-                console.log("Successfully generated plan for:", formData.destination);
-                res.json({ success: true, plan });
-            } catch (err) {
-                console.error("Internal simulation error:", err);
-                res.status(500).json({ success: false, message: "Error during plan generation" });
-            }
-        }, 1500);
+    } catch (realAiError) {
+        console.warn("⚠️ Real AI failed or key missing, falling back to Mock AI:", realAiError.message);
 
-    } catch (error) {
-        console.error("Error generating plan:", error);
-        res.status(500).json({ success: false, message: "Failed to generate plan" });
+        // 2. Fallback to Mock AI
+        try {
+            setTimeout(() => {
+                try {
+                    const plan = generateMockPlan(formData);
+                    console.log("ℹ️ Generated MOCK plan for:", formData.destination);
+                    res.json({ success: true, plan });
+                } catch (mockError) {
+                    console.error("❌ Mock generation error:", mockError);
+                    res.status(500).json({ success: false, message: "Critical failure in plan generation" });
+                }
+            }, 1000);
+        } catch (err) {
+            res.status(500).json({ success: false, message: "System error" });
+        }
     }
 });
 
