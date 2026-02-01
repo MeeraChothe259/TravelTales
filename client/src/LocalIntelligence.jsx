@@ -1,11 +1,6 @@
 import React, { useState } from 'react';
-<<<<<<< HEAD
 import { motion, AnimatePresence } from 'framer-motion';
-import { Utensils, Bus, User, Star, Phone, Car } from 'lucide-react';
-=======
-import { motion } from 'framer-motion';
 import { Utensils, Bus, User, Star, Phone, Car, Bike } from 'lucide-react';
->>>>>>> c5b1cc2b697ead4b5688616b6e60a98d2ac69e4e
 import { useLanguage } from './LanguageContext';
 import './LocalIntelligence.css';
 
@@ -33,7 +28,7 @@ const LocalIntelligence = ({ data }) => {
             <h4 style={{ marginBottom: '1rem' }}>🍽️ {t('recommendedSpots')}</h4>
             <div className="intel-grid">
                 {data.food.restaurants.map((rest, i) => (
-                    <div key={i} className="intel-card">
+                    <div key={rest.id || i} className="intel-card">
                         <div className="flex justify-between items-start">
                             <strong>{rest.name}</strong>
                             <div className="flex gap-2">

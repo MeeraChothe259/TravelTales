@@ -214,9 +214,23 @@ const HotelSuggestionsPage = () => {
                                                         <span style={{ fontSize: '2rem', fontWeight: '800', color: 'var(--text-main)' }}>${selectedHotel.pricePerNight}</span>
                                                         <span style={{ fontSize: '1rem', color: 'var(--text-muted)' }}> / night</span>
                                                     </div>
-                                                    <button className="btn btn-primary" style={{ padding: '0.8rem 2rem' }} onClick={() => setShowContactCard(true)}>
-                                                        {t('contactNow') || 'Contact Now'}
-                                                    </button>
+                                                    <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                                        <a
+                                                            href={selectedHotel.coords
+                                                                ? `https://www.google.com/maps/search/?api=1&query=${selectedHotel.coords.lat},${selectedHotel.coords.lng}`
+                                                                : `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(selectedHotel.name + ' ' + selectedHotel.location)}`
+                                                            }
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="btn btn-secondary"
+                                                            style={{ padding: '0.8rem 1.5rem', display: 'flex', alignItems: 'center', gap: '8px', textDecoration: 'none' }}
+                                                        >
+                                                            <MapPin size={18} /> {t('viewLocation') || 'Location'}
+                                                        </a>
+                                                        <button className="btn btn-primary" style={{ padding: '0.8rem 2rem' }} onClick={() => setShowContactCard(true)}>
+                                                            {t('contactNow') || 'Contact Now'}
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </motion.div>
                                         ) : (

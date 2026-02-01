@@ -87,7 +87,7 @@ const MapExploration = ({ plan }) => {
             }
             setIsSearching(true);
             try {
-                const response = await fetch(`http://localhost:5000/api/geocode?q=${encodeURIComponent(plan.destination)}`);
+                const response = await fetch(`http://localhost:5005/api/geocode?q=${encodeURIComponent(plan.destination)}`);
                 const data = await response.json();
                 if (data && data.length > 0) {
                     const { lat, lon } = data[0];
@@ -116,7 +116,7 @@ const MapExploration = ({ plan }) => {
     useEffect(() => {
         if (isSearching) return; // Wait for geocoding to settle
 
-        const fetchPOIs = async () => {
+        const fetchPOIs = async (signal) => {
             setIsLoadingPOIs(true);
             const lat = mapCenter[0];
             const lon = mapCenter[1];
@@ -137,8 +137,26 @@ const MapExploration = ({ plan }) => {
             `;
 
             try {
-                const response = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`);
+                const response = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`, { signal });
+
+                if (!response.ok) {
+                    throw new Error(`Overpass API responded with status: ${response.status}`);
+                }
+
+                const contentType = response.headers.get("content-type");
+                if (!contentType || !contentType.includes("application/json")) {
+                    const text = await response.text();
+                    console.error("Overpass API returned non-JSON response:", text.substring(0, 200));
+                    throw new Error("Overpass API returned non-JSON response");
+                }
+
                 const data = await response.json();
+
+                if (!data || !data.elements) {
+                    console.warn("Overpass API returned empty data");
+                    setIsLoadingPOIs(false);
+                    return;
+                }
 
                 const newMarkers = data.elements.map(el => {
                     let type = 'places';
@@ -152,7 +170,7 @@ const MapExploration = ({ plan }) => {
                     }
 
                     return {
-                        id: el.id,
+                        id: el.id ? `osm-${el.id}` : `osm-rand-${Math.random().toString(36).substr(2, 9)}`,
                         type: type,
                         position: [el.lat, el.lon],
                         title: el.tags.name || "Unnamed Spot",
@@ -169,7 +187,7 @@ const MapExploration = ({ plan }) => {
 
                 if (plan && plan.itinerary) {
                     plan.itinerary.forEach((day, dIdx) => {
-                        const dayActivities = [day.morning, day.afternoon, day.evening].filter(Boolean);
+                        const dayActivities = day.activities || [day.morning, day.afternoon, day.evening].filter(Boolean);
                         const dayPath = [];
 
                         dayActivities.forEach((act, aIdx) => {
@@ -211,14 +229,22 @@ const MapExploration = ({ plan }) => {
                 setMarkers([...planMarkers, ...newMarkers]);
                 setRoutes(planRoutes);
             } catch (error) {
+                if (error.name === 'AbortError') {
+                    console.log('POI fetch aborted');
+                    return;
+                }
                 console.error("Overpass API error:", error);
             } finally {
                 setIsLoadingPOIs(false);
             }
         };
 
-        const timeoutId = setTimeout(fetchPOIs, 800); // Debounce
-        return () => clearTimeout(timeoutId);
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => fetchPOIs(controller.signal), 800); // Debounce
+        return () => {
+            clearTimeout(timeoutId);
+            controller.abort();
+        };
     }, [mapCenter, isSearching, plan]);
 
     const toggleLayer = (layer) => {

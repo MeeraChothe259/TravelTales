@@ -15,6 +15,7 @@ const generateMockPlan = (data) => {
         throw new Error("Destination is required");
     }
     const dest = destination.toLowerCase().trim();
+    const baseCoords = data.destinationCoords || { lat: 0, lng: 0 };
 
     // Helper: Random Array Item
     const rnd = (arr) => arr[Math.floor(Math.random() * arr.length)];
@@ -130,6 +131,11 @@ const generateMockPlan = (data) => {
                 late: rnd(lateAlternatives),
                 skipped: rnd(skippedAlternatives),
                 overspent: rnd(overspentAlternatives)
+            },
+            culturalWarnings: {
+                dress: rnd(['Cover shoulders and knees', 'Business casual recommended', 'Modest clothing preferred', null]),
+                photography: rnd(['No flash allowed', 'No photos of monks/clergy', 'Photography fee may apply', null]),
+                behavior: rnd(['Maintain silence', 'Remove shoes at entrance', 'No eating inside', null])
             }
         };
     };
@@ -316,10 +322,58 @@ const generateMockPlan = (data) => {
         totalActivityCost += dayCost;
         dayWiseActivityCosts.push(dayCost);
 
+        // Weather Logic: Use Real API data if available, else random
+        let weatherCondition;
+        let weatherMood;
+
+        if (data.weather) {
+            // Map real API description to our format
+            const desc = data.weather.description.toLowerCase();
+            const temp = Math.round(data.weather.temp);
+
+            if (desc.includes('clear')) weatherCondition = `Clear ☀️ ${temp}°C`;
+            else if (desc.includes('cloud')) weatherCondition = `Cloudy ☁️ ${temp}°C`;
+            else if (desc.includes('rain')) weatherCondition = `Rainy 🌧️ ${temp}°C`;
+            else if (desc.includes('snow')) weatherCondition = `Snowy ❄️ ${temp}°C`;
+            else if (desc.includes('thunder')) weatherCondition = `Stormy ⛈️ ${temp}°C`;
+            else if (desc.includes('drizzle')) weatherCondition = `Drizzle 🌦️ ${temp}°C`;
+            else if (desc.includes('mist') || desc.includes('fog')) weatherCondition = `Misty 🌫️ ${temp}°C`;
+            else weatherCondition = `${data.weather.description} 🌡️ ${temp}°C`;
+
+            // Mood logic for real weather
+            if (desc.includes('rain') || desc.includes('drizzle') || desc.includes('storm')) {
+                weatherMood = "Cozy vibes only. Ideal for bookshops, jazz cafés, and museum hopping. 🌧️📚";
+            } else if (desc.includes('clear') || desc.includes('sunny')) {
+                weatherMood = "Golden hour awaits! Great for parks, rooftops, and walking tours. ☀️🕶️";
+            } else if (desc.includes('cloud')) {
+                weatherMood = "Soft light & cool breeze. Perfect for photography and long walks. ☁️📷";
+            } else if (desc.includes('snow')) {
+                weatherMood = "Winter wonderland! Time for hot cocoa and indoor galleries. ❄️☕";
+            } else {
+                weatherMood = "Enjoy the unique atmosphere of the city today! 🌍✨";
+            }
+
+        } else {
+            // Fallback to Random
+            weatherCondition = rnd(['Sunny ☀️', 'Clear 🌤️', 'Breezy 🍃', 'Partly Cloudy ⛅', 'Rainy 🌧️', 'Overcast ☁️']);
+            weatherMood = "Perfect day for exploring hidden alleys and open-air cafes. ☕📸";
+
+            if (weatherCondition.includes('Rainy')) {
+                weatherMood = "Cozy vibes only. Ideal for bookshops, jazz cafés, and museum hopping. 🌧️📚";
+            } else if (weatherCondition.includes('Sunny') || weatherCondition.includes('Clear')) {
+                weatherMood = "Golden hour awaits! Great for parks, rooftops, and walking tours. ☀️🕶️";
+            } else if (weatherCondition.includes('Breezy')) {
+                weatherMood = "Fresh air & freedom. Perfect for cycling or a long coastal walk. 🍃🚲";
+            } else if (weatherCondition.includes('Overcast')) {
+                weatherMood = "Moody & cinematic. Excellent lighting for photography and dramatic views. ☁️📷";
+            }
+        }
+
         days.push({
             day: i,
             date: new Date(start.getTime() + (i - 1) * 86400000).toDateString(),
-            weather: rnd(['Sunny ☀️', 'Clear 🌤️', 'Breezy 🍃', 'Partly Cloudy ⛅']),
+            weather: weatherCondition,
+            weatherMood,
             wakeup,
             breakfast,
             morning,
@@ -358,8 +412,8 @@ const generateMockPlan = (data) => {
         food: {
             specialties: language === 'ja' ? ['ラーメン', '寿司', '抹茶', '焼肉'] : ['Local Ramen', 'Street Sushi', 'Matcha Sweets', 'Yakiniku BBQ'],
             restaurants: [
-                { name: 'Ichiraku Ramen', type: 'Local Favorite', price: '$', tags: ['Comfort Food', 'Fast'] },
-                { name: 'Sakura Garden', type: 'Fine Dining', price: '$$$', tags: ['Vegetarian Friendly', 'View'] }
+                { id: 'rest-1', name: 'Ichiraku Ramen', type: 'Local Favorite', price: '$', tags: ['Comfort Food', 'Fast'] },
+                { id: 'rest-2', name: 'Sakura Garden', type: 'Fine Dining', price: '$$$', tags: ['Vegetarian Friendly', 'View'] }
             ]
         },
         transport: {
@@ -388,6 +442,7 @@ const generateMockPlan = (data) => {
         destination,
         dates: `${startDate} to ${endDate}`,
         travelers: partners,
+        culturalScore: rndNum(85, 98),
         vibe: mood,
         budgetSummary: {
             total: totalTripCost,
@@ -408,7 +463,7 @@ const generateMockPlan = (data) => {
                 amenities: ["Wifi", "Breakfast", "Pool", "Gym"],
                 roomTypes: ["Standard", "Deluxe Suite"],
                 location: "City Center",
-                coords: { lat: 35.6762 + 0.01, lng: 139.6503 + 0.01 },
+                coords: { lat: baseCoords.lat + 0.01, lng: baseCoords.lng + 0.01 },
                 imageUrl: "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80",
                 phone: "+1 (555) 123-4567",
                 address: "123 Skyline Blvd, Central District"
@@ -421,7 +476,7 @@ const generateMockPlan = (data) => {
                 amenities: ["Wifi", "Work Desk", "Coffee Bar"],
                 roomTypes: ["Pod", "Compact Room"],
                 location: "Arts District",
-                coords: { lat: 35.6762 - 0.01, lng: 139.6503 - 0.01 },
+                coords: { lat: baseCoords.lat - 0.01, lng: baseCoords.lng - 0.01 },
                 imageUrl: "https://images.unsplash.com/photo-1551882547-ff43c61f3c33?auto=format&fit=crop&w=800&q=80",
                 phone: "+1 (555) 987-6543",
                 address: "45 Neo Way, Creative Quarter"
@@ -434,7 +489,7 @@ const generateMockPlan = (data) => {
                 amenities: ["Wifi", "Tea Garden", "Spa"],
                 roomTypes: ["Garden View", "Premium Cabin"],
                 location: "Green Belt",
-                coords: { lat: 35.6762 + 0.02, lng: 139.6503 - 0.02 },
+                coords: { lat: baseCoords.lat + 0.02, lng: baseCoords.lng - 0.02 },
                 imageUrl: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80",
                 phone: "+1 (555) 444-2222",
                 address: "88 Willow Lane, Botanical Ridge"
@@ -447,7 +502,7 @@ const generateMockPlan = (data) => {
                 amenities: ["Wifi", "Library", "Wine Bar"],
                 roomTypes: ["Classic Double", "Historic Suite"],
                 location: "Old Town",
-                coords: { lat: 35.6762 - 0.02, lng: 139.6503 + 0.02 },
+                coords: { lat: baseCoords.lat - 0.02, lng: baseCoords.lng + 0.02 },
                 imageUrl: "https://images.unsplash.com/photo-1544124499-58912cbddaad?auto=format&fit=crop&w=800&q=80",
                 phone: "+1 (555) 333-7777",
                 address: "12 cobblestone St, Heritage Quarter"
@@ -473,7 +528,7 @@ const generateMockPlan = (data) => {
                 amenities: ["Wifi", "Bar", "Lounge"],
                 roomTypes: ["Dorm Bed", "Private Pod"],
                 location: "Downtown",
-                coords: { lat: 35.6762 + 0.005, lng: 139.6503 - 0.005 },
+                coords: { lat: baseCoords.lat + 0.005, lng: baseCoords.lng - 0.005 },
                 imageUrl: "https://images.unsplash.com/photo-1555854817-5b2260d1bd63?auto=format&fit=crop&w=800&q=80",
                 phone: "+1 (555) 666-4444",
                 address: "22 Flash Lane, Neon District"
@@ -817,84 +872,114 @@ const generateMockPlan = (data) => {
                 address: "3 Secret Lane, Velvet Quarter"
             }
         ],
-        vlogs: [
-            {
-                title: `Ultimate ${destination} Travel Guide - 10 Best Things to Do!`,
-                youtuber: "Lost LeBlanc",
-                url: "https://www.youtube.com/watch?v=1xN5-3tM8yI",
-                thumbnail: "https://img.youtube.com/vi/1xN5-3tM8yI/mqdefault.jpg"
-            },
-            {
-                title: `I Traveled to ${destination} Solo (Our First Impressions)`,
-                youtuber: "Kara and Nate",
-                url: "https://www.youtube.com/watch?v=FqG7j4n1C_E",
-                thumbnail: "https://img.youtube.com/vi/FqG7j4n1C_E/mqdefault.jpg"
-            },
-            {
-                title: `${destination} on a Budget! ($50 a Day Challenge)`,
-                youtuber: "Mark Wiens",
-                url: "https://www.youtube.com/watch?v=6Xn4oR9zXjQ",
-                thumbnail: "https://img.youtube.com/vi/6Xn4oR9zXjQ/mqdefault.jpg"
-            }
-        ],
+        vlogs: (() => {
+            const vlogPool = {
+                'paris': [
+                    { id: 'vlog-p1', title: 'Paris Travel Guide - 10 Best Things to Do!', youtuber: 'Expedia', url: 'https://www.youtube.com/watch?v=A39_f-Fk_4A', thumbnail: 'https://img.youtube.com/vi/A39_f-Fk_4A/hqdefault.jpg' },
+                    { id: 'vlog-p2', title: 'Paris Vacations: The Best of Paris', youtuber: 'Rick Steves', url: 'https://www.youtube.com/watch?v=M7SAsV6jI3U', thumbnail: 'https://img.youtube.com/vi/M7SAsV6jI3U/hqdefault.jpg' }
+                ],
+                'london': [
+                    { id: 'vlog-l1', title: 'London Travel Guide', youtuber: 'Lonely Planet', url: 'https://www.youtube.com/watch?v=45ETZ1xvHS0', thumbnail: 'https://img.youtube.com/vi/45ETZ1xvHS0/hqdefault.jpg' },
+                    { id: 'vlog-l2', title: '13 Best Things to do in London', youtuber: 'Samuel and Audrey', url: 'https://www.youtube.com/watch?v=W-Lz2N9W-x8', thumbnail: 'https://img.youtube.com/vi/W-Lz2N9W-x8/hqdefault.jpg' }
+                ],
+                'tokyo': [
+                    { id: 'vlog-t1', title: 'Tokyo Travel Guide', youtuber: 'Expedia', url: 'https://www.youtube.com/watch?v=_-0_v8EAnmE', thumbnail: 'https://img.youtube.com/vi/_-0_v8EAnmE/hqdefault.jpg' },
+                    { id: 'vlog-t2', title: 'Tokyo - The Best Places to Visit', youtuber: 'Samuel and Audrey', url: 'https://www.youtube.com/watch?v=v0I_2N4X0xY', thumbnail: 'https://img.youtube.com/vi/v0I_2N4X0xY/hqdefault.jpg' }
+                ],
+                'new york': [
+                    { id: 'vlog-ny1', title: 'New York City Travel Guide', youtuber: 'Expedia', url: 'https://www.youtube.com/watch?v=MtCMtC50gwY', thumbnail: 'https://img.youtube.com/vi/MtCMtC50gwY/hqdefault.jpg' }
+                ]
+            };
+
+            // Return specific vlogs if destination matched, else generic logic
+            const destKey = destination.toLowerCase().trim();
+            if (vlogPool[destKey]) return vlogPool[destKey];
+
+            // Generic Fallback using a search-like link (placeholder ID remains but reflects destination better in title)
+            return [
+                {
+                    id: 'vlog-fallback-1',
+                    title: `Ultimate ${destination} Travel Guide - 10 Best Things to Do!`,
+                    youtuber: "Travel Guide",
+                    url: `https://www.youtube.com/results?search_query=${encodeURIComponent(destination)}+travel+guide`,
+                    thumbnail: `https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80`
+                },
+                {
+                    id: 'vlog-fallback-2',
+                    title: `Exploring the Best of ${destination} | 2024 Travel Vlog`,
+                    youtuber: "Globe Trotter",
+                    url: `https://www.youtube.com/results?search_query=${encodeURIComponent(destination)}+travel+vlog`,
+                    thumbnail: `https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?auto=format&fit=crop&w=800&q=80`
+                }
+            ];
+        })(),
         hiddenGems: [
             {
+                id: 'gem-1',
                 title: "The Whispering Garden",
                 description: "A serene, centuries-old garden tucked away behind a nondescript library. Perfectly quiet even on weekends.",
                 whyUnderrated: "Locals keep it secret to avoid crowds. The entrance is literally through a bookshelf!",
                 coords: { lat: 35.6762 + 0.05, lng: 139.6503 - 0.02 },
-                imageUrl: "https://images.unsplash.com/photo-1582103287241-2762adba6c36?auto=format&fit=crop&w=800&q=80"
+                imageUrl: ""
             },
             {
+                id: 'gem-2',
                 title: "Old Town Vinyl Bar",
                 description: "A basement bar with over 10,000 vintage jazz records and the best coffee-infused cocktails in the city.",
                 whyUnderrated: "Has no sign outside. You have to knock on the blue door 3 times.",
                 coords: { lat: 35.6762 - 0.03, lng: 139.6503 + 0.01 },
-                imageUrl: "https://images.unsplash.com/photo-1514525253344-f814d0743b1a?auto=format&fit=crop&w=800&q=80"
+                imageUrl: ""
             },
             {
+                id: 'gem-3',
                 title: "The Artisanal Rooftop",
                 description: "A community-run rooftop farm and café with views of the skyline that beat any observation deck.",
                 whyUnderrated: "Mainly used for community workshops. They only serve what they grow that morning.",
                 coords: { lat: 35.6762 + 0.01, lng: 139.6503 + 0.04 },
-                imageUrl: "https://images.unsplash.com/photo-1541167760496-162955ed8a9f?auto=format&fit=crop&w=800&q=80"
+                imageUrl: ""
             }
         ]
     };
 };
 
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-
-// Initialize Gemini
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const model = genAI.getGenerativeModel({
-    model: "gemini-flash-latest",
-    systemInstruction: "You are TravelTales AI. Provide extremely short, specific, and straight-forward answers. NO fluff, NO enthusiasm. Just give the direct facts asked for. If the user makes a typo like 'Parys', understand it as Paris but keep the answer brief. Your goal is maximum efficiency."
-});
+const Groq = require("groq-sdk");
+const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
 const handleChatResponse = async (message) => {
     try {
-        const result = await model.generateContent(message);
-        const response = await result.response;
-        return response.text();
+        const chatCompletion = await groq.chat.completions.create({
+            messages: [
+                {
+                    role: "system",
+                    content: "You are TravelTales AI. Provide extremely short, specific, and straight-forward answers. NO fluff, NO enthusiasm. Just give the direct facts asked for. If the user makes a typo like 'Parys', understand it as Paris but keep the answer brief. Your goal is maximum efficiency."
+                },
+                {
+                    role: "user",
+                    content: message
+                }
+            ],
+            model: "llama-3.3-70b-versatile",
+        });
+
+        return chatCompletion.choices[0]?.message?.content || "";
     } catch (error) {
         if (error.message.includes("429")) {
-            console.warn("Gemini Rate Limit Hit. Falling back to mock.");
-            return "I'm a bit overwhelmed with travel requests right now! Please wait a few seconds and ask me again. In the meantime, I can still help with basics!";
+            console.warn("Groq Rate Limit Hit. Falling back to mock.");
+            return "I'm a bit overwhelmed with travel requests right now! Please wait a few seconds and ask me again.";
         }
-        console.error("Gemini Error:", error.message);
+        console.error("Groq Error:", error.message);
 
         // Fallback Mock Logic
         const msg = message.toLowerCase().trim();
-        const rnd = (arr) => arr[Math.floor(Math.random() * arr.length)];
+        const rndArr = (arr) => arr[Math.floor(Math.random() * arr.length)];
 
         const travelKnowledge = {
             greetings: ["Hello! I'm your TravelTales assistant. How can I help you explore today?", "Hi there!", "Greeting! I'm ready to help you plan."],
             fallback: ["I'm having a little trouble connecting to my global brain right now, but I can still help you with basics! What's on your mind?", "My AI signals are a bit weak, but I'm here for your travel needs."]
         };
 
-        if (msg.includes("hello") || msg.includes("hi")) return rnd(travelKnowledge.greetings);
-        return rnd(travelKnowledge.fallback);
+        if (msg.includes("hello") || msg.includes("hi")) return rndArr(travelKnowledge.greetings);
+        return rndArr(travelKnowledge.fallback);
     }
 };
 

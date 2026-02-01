@@ -35,12 +35,36 @@ const TravelChatbot = () => {
 
     // --- Web Speech API: Synthesis (Text to Speech) ---
     const speak = (text) => {
-        if (!isSpeaking || !window.speechSynthesis) return;
+        if (!window.speechSynthesis) return;
         window.speechSynthesis.cancel(); // Stop current speech
         const utterance = new SpeechSynthesisUtterance(text);
+
+        // Ensure voices are loaded (some browsers need this)
+        const voices = window.speechSynthesis.getVoices();
+        if (voices.length > 0) {
+            utterance.voice = voices[0];
+        }
+
         utterance.rate = 1;
         utterance.pitch = 1;
         window.speechSynthesis.speak(utterance);
+    };
+
+    const toggleSpeaking = () => {
+        const nextSpeakingState = !isSpeaking;
+        setIsSpeaking(nextSpeakingState);
+
+        if (nextSpeakingState) {
+            // If turning ON, read the last bot message
+            const botMessages = messages.filter(m => m.role === 'bot');
+            if (botMessages.length > 0) {
+                const lastBotMsg = botMessages[botMessages.length - 1];
+                speak(lastBotMsg.text);
+            }
+        } else {
+            // If turning OFF, stop any current speech
+            window.speechSynthesis.cancel();
+        }
     };
 
     const toggleListening = () => {
@@ -66,7 +90,7 @@ const TravelChatbot = () => {
         setIsTyping(true);
 
         try {
-            const response = await fetch('http://localhost:5000/api/chat', {
+            const response = await fetch('http://localhost:5005/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ message: text })
@@ -75,7 +99,7 @@ const TravelChatbot = () => {
 
             const botMsg = { role: 'bot', text: data.reply };
             setMessages(prev => [...prev, botMsg]);
-            speak(data.reply);
+            if (isSpeaking) speak(data.reply);
         } catch (error) {
             console.error("Chat Error:", error);
             const errorMsg = { role: 'bot', text: "Sorry, I'm having trouble connecting to the travel hub." };
@@ -142,8 +166,10 @@ const TravelChatbot = () => {
                                 <Sparkles size={20} />
                                 <span style={{ fontWeight: 'bold' }}>Travel AI Buddy</span>
                             </div>
-                            <button onClick={() => setIsSpeaking(!isSpeaking)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
-                                {isSpeaking ? <Volume2 size={20} /> : <VolumeX size={20} />}
+                            <button onClick={toggleSpeaking} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', transition: 'transform 0.2s' }}>
+                                <motion.div whileHover={{ scale: 1.2 }}>
+                                    {isSpeaking ? <Volume2 size={20} /> : <VolumeX size={20} />}
+                                </motion.div>
                             </button>
                         </div>
 

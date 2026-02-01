@@ -6,6 +6,7 @@ import {
     TrendingUp, Wallet, ArrowRightLeft, Info, Users
 } from 'lucide-react';
 import { useLanguage } from './LanguageContext';
+import { useCurrency } from './CurrencyContext';
 import Navbar from './components/Navbar';
 
 const BudgetCurrencyPage = () => {
@@ -14,55 +15,28 @@ const BudgetCurrencyPage = () => {
     const { t } = useLanguage();
     const { details } = location.state || {};
 
-    const [targetCurrency, setTargetCurrency] = useState('USD');
-    const [rates, setRates] = useState({ USD: 1 });
-    const [isLoading, setIsLoading] = useState(true);
+    const {
+        selectedCurrency,
+        setSelectedCurrency,
+        currencySymbol,
+        rates,
+        isLoading,
+        currencies
+    } = useCurrency();
 
     // Converter state
     const [convertAmount, setConvertAmount] = useState(100);
     const [convertFrom, setConvertFrom] = useState('USD');
     const [convertTo, setConvertTo] = useState('EUR');
 
-    const currencies = [
-        { code: 'USD', name: 'US Dollar', symbol: '$' },
-        { code: 'EUR', name: 'Euro', symbol: '€' },
-        { code: 'GBP', name: 'British Pound', symbol: '£' },
-        { code: 'JPY', name: 'Japanese Yen', symbol: '¥' },
-        { code: 'INR', name: 'Indian Rupee', symbol: '₹' },
-        { code: 'AUD', name: 'Australian Dollar', symbol: 'A$' },
-        { code: 'CAD', name: 'Canadian Dollar', symbol: 'C$' },
-        { code: 'CHF', name: 'Swiss Franc', symbol: 'Fr' },
-        { code: 'CNY', name: 'Chinese Yuan', symbol: '¥' },
-        { code: 'BRL', name: 'Brazilian Real', symbol: 'R$' },
-        { code: 'ZAR', name: 'South African Rand', symbol: 'R' },
-        { code: 'AED', name: 'UAE Dirham', symbol: 'د.إ' }
-    ];
-
-    useEffect(() => {
-        const fetchRates = async () => {
-            setIsLoading(true);
-            try {
-                const response = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-                const data = await response.json();
-                setRates(data.rates);
-            } catch (error) {
-                console.error("Error fetching rates:", error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        fetchRates();
-    }, []);
+    // Global rates handled by CurrencyContext
 
     const convertValue = (val, toCurr) => {
         const rate = rates[toCurr] || 1;
         return val * rate;
     };
 
-    const currencySymbol = useMemo(() => {
-        const curr = currencies.find(c => c.code === targetCurrency);
-        return curr ? curr.symbol : '$';
-    }, [targetCurrency]);
+    // Using global currencySymbol and targetCurrency (selectedCurrency)
 
     if (!details) {
         return (
@@ -97,8 +71,8 @@ const BudgetCurrencyPage = () => {
         return { total: currentTotal, split: currentSplit };
     }, [details.totalEstimated, initialTravelers, numTravelers]);
 
-    const convertedTotal = convertValue(currentStats.total, targetCurrency);
-    const convertedPerPerson = convertValue(currentStats.split, targetCurrency);
+    const convertedTotal = convertValue(currentStats.total, selectedCurrency);
+    const convertedPerPerson = convertValue(currentStats.split, selectedCurrency);
 
     return (
         <div style={{ minHeight: '100vh', background: '#F8FAFC', paddingTop: '80px' }}>
@@ -135,8 +109,8 @@ const BudgetCurrencyPage = () => {
                                     <div style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: '1rem', background: '#F1F5F9', padding: '0.75rem 1rem', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
                                         <Globe size={20} color="var(--primary)" />
                                         <select
-                                            value={targetCurrency}
-                                            onChange={(e) => setTargetCurrency(e.target.value)}
+                                            value={selectedCurrency}
+                                            onChange={(e) => setSelectedCurrency(e.target.value)}
                                             style={{ flex: 1, border: 'none', background: 'transparent', fontSize: '1rem', fontWeight: '600', outline: 'none', cursor: 'pointer' }}
                                         >
                                             {currencies.map(c => (
@@ -180,7 +154,7 @@ const BudgetCurrencyPage = () => {
 
                             <div className="flex flex-col gap-4">
                                 <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                                    <TrendingUp size={18} /> {t('dayWiseForecast')} ({targetCurrency})
+                                    <TrendingUp size={18} /> {t('dayWiseForecast')} ({selectedCurrency})
                                 </h4>
                                 {details.dayWise.map((day, idx) => {
                                     // Calculate day-specific scaling
@@ -189,7 +163,7 @@ const BudgetCurrencyPage = () => {
                                     const perPersonDayIndividual = dayIndividualBase / initialTravelers;
                                     const currentDayTotal = daySharedBase + (perPersonDayIndividual * numTravelers);
 
-                                    const dayVal = convertValue(currentDayTotal, targetCurrency);
+                                    const dayVal = convertValue(currentDayTotal, selectedCurrency);
                                     return (
                                         <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1rem', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0' }}>
                                             <span style={{ fontWeight: '800' }}>{t('day')} {day.day}</span>
