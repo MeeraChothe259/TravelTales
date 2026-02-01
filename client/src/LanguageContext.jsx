@@ -27,6 +27,11 @@ export const translations = {
                 localIntel: "Local Intelligence",
                 mapBased: "Map-Based Exploration",
                 budgetManager: "Budget Manager",
+                culturalRespectScore: "Cultural Respect Score",
+                dressNorms: "Dress Norms",
+                photoRules: "Photography Rules",
+                behaviorTaboos: "Behavior Taboos",
+                scoreMessage: "Your itinerary shows {score}% cultural respect",
                 perPerson: "Per Person",
                 totalTripCost: "Total Trip Cost",
                 numTravelers: "NUMBER OF TRAVELERS",
@@ -66,7 +71,7 @@ export const translations = {
                 interestsSub: "Select all that apply.",
                 constraints: "Constraints",
                 constraintsSub: "Any limitations?",
-                safetyComfort: "Safety & Comfort (Optional but Powerful)",
+                safetyComfort: "Safety & Comfort",
                 safetyComfortSub: "Your well-being matters.",
                 generatePlan: "Generate My Plan",
                 generating: "Generating...",
@@ -193,6 +198,11 @@ export const translations = {
                 budgetManager: "Gestor de Presupuesto Inteligente",
                 localIntel: "Inteligencia Local",
                 mapBased: "Exploración basada en Mapas",
+                culturalRespectScore: "Puntaje de Respeto Cultural",
+                dressNorms: "Normas de Vestimenta",
+                photoRules: "Reglas de Fotografía",
+                behaviorTaboos: "Tabúes de Comportamiento",
+                scoreMessage: "Tu itinerario muestra un {score}% de respeto cultural",
                 perPerson: "Por Persona",
                 totalTripCost: "Costo Total del Viaje",
                 numTravelers: "NÚMERO DE VIAJEROS",
@@ -231,7 +241,7 @@ export const translations = {
                 interestsSub: "Selecciona todo lo que aplique.",
                 constraints: "Limitaciones",
                 constraintsSub: "¿Alguna restricción?",
-                safetyComfort: "Seguridad y Confort (Opcional)",
+                safetyComfort: "Seguridad y Confort",
                 safetyComfortSub: "Tu bienestar importa.",
                 generatePlan: "Generar mi plan",
                 generating: "Generando...",
@@ -355,6 +365,11 @@ export const translations = {
                 budgetManager: "स्मार्ट बजट प्रबंधक",
                 localIntel: "स्थानीय खुफिया",
                 mapBased: "मानचित्र-आधारित अन्वेषण",
+                culturalRespectScore: "सांस्कृतिक सम्मान स्कोर",
+                dressNorms: "पोशाक मानदंड",
+                photoRules: "फोटोग्राफी नियम",
+                behaviorTaboos: "व्यवहार वर्जनाएं",
+                scoreMessage: "आपका यात्रा कार्यक्रम {score}% सांस्कृतिक सम्मान दिखाता है",
                 perPerson: "प्रति व्यक्ति",
                 totalTripCost: "कुल यात्रा लागत",
                 numTravelers: "यात्रियों की संख्या",
@@ -393,7 +408,7 @@ export const translations = {
                 interestsSub: "वे सभी चुनें जो लागू हों।",
                 constraints: "बाधाएं",
                 constraintsSub: "कोई सीमाएँ?",
-                safetyComfort: "सुरक्षा और आराम (वैकल्पिक)",
+                safetyComfort: "सुरक्षा और आराम",
                 safetyComfortSub: "आपका कल्याण मायने रखता।",
                 generatePlan: "मेरी योजना तैयार करें",
                 generating: "तैयार हो रहा है...",
@@ -517,6 +532,11 @@ export const translations = {
                 budgetManager: "Умный менеджер бюджета",
                 localIntel: "Местная информация",
                 mapBased: "Исследование на карте",
+                culturalRespectScore: "Оценка культурного уважения",
+                dressNorms: "Нормы одежды",
+                photoRules: "Правила фотографии",
+                behaviorTaboos: "Запреты поведения",
+                scoreMessage: "Ваш маршрут показывает {score}% культурного уважения",
                 perPerson: "На человека",
                 totalTripCost: "Общая стоимость поездки",
                 numTravelers: "КОЛИЧЕСТВО ПУТЕШЕСТВЕННИКОВ",
@@ -555,7 +575,7 @@ export const translations = {
                 interestsSub: "Выберите всё, что подходит.",
                 constraints: "Ограничения",
                 constraintsSub: "Есть ли ограничения?",
-                safetyComfort: "Безопасность и комфорт (опционально)",
+                safetyComfort: "Безопасность и комфорт",
                 safetyComfortSub: "Ваше благополучие имеет значение.",
                 generatePlan: "Создать мой план",
                 generating: "Создание...",
@@ -662,7 +682,8 @@ export const LanguageProvider = ({ children }) => {
         const [language, setLanguage] = useState('en');
 
         const t = (key) => {
-                return translations[language][key] || key;
+                const translation = translations[language] || translations['en'];
+                return translation[key] || translations['en'][key] || key;
         };
 
         return (

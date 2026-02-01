@@ -8,14 +8,26 @@ import Navbar from './components/Navbar';
 const LandingPage = () => {
     const navigate = useNavigate();
     const { t } = useLanguage();
+    const [communityFeedbacks, setCommunityFeedbacks] = React.useState([]);
+
+    React.useEffect(() => {
+        const fetchCommunityFeedbacks = async () => {
+            try {
+                const res = await fetch('http://localhost:5005/api/feedbacks');
+                const data = await res.json();
+                if (data.success) {
+                    setCommunityFeedbacks(data.feedbacks.slice(0, 3)); // Show top 3
+                }
+            } catch (e) {
+                console.error("Failed to fetch community feedback", e);
+            }
+        };
+        fetchCommunityFeedbacks();
+    }, []);
 
     return (
         <div className="landing-page">
-            <Navbar>
-                <button onClick={() => navigate('/plan')} className="btn btn-primary btn-sm" style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}>
-                    {t('startPlanning')}
-                </button>
-            </Navbar>
+            <Navbar />
 
             {/* Hero Section */}
             <section className="hero-wrapper">
@@ -108,14 +120,140 @@ const LandingPage = () => {
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="section" style={{ padding: '2rem 0', borderTop: '1px solid #E2E8F0', background: 'white' }}>
-                <div className="container text-center">
-                    <div className="flex justify-center items-center gap-2" style={{ marginBottom: '1rem', opacity: 0.8 }}>
-                        <Plane size={24} color="#4F46E5" />
-                        <span style={{ fontWeight: 800 }}>{t('appName')}</span>
+            {/* Traveler Stories Section */}
+            <section className="section" style={{ background: 'white', paddingBottom: '5rem' }}>
+                <div className="container">
+                    <div className="text-center" style={{ marginBottom: '3rem' }}>
+                        <span style={{ color: '#4F46E5', fontWeight: 'bold', textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.8rem' }}>Community Voice</span>
+                        <h2 style={{ marginTop: '0.5rem' }}>Traveler Stories</h2>
+                        <p style={{ color: 'var(--text-sub)' }}>Real experiences from our global community of adventurers.</p>
                     </div>
-                    <p style={{ fontSize: '0.9rem' }}>&copy; {new Date().getFullYear()} {t('appName')}. Built with AI & <Heart size={14} style={{ display: 'inline', color: '#EF4444' }} fill="currentColor" />.</p>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+                        {communityFeedbacks.length > 0 ? (
+                            communityFeedbacks.map((fb, idx) => (
+                                <motion.div
+                                    key={fb.id}
+                                    className="card"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    transition={{ delay: idx * 0.1 }}
+                                    viewport={{ once: true }}
+                                    style={{
+                                        padding: '2rem',
+                                        borderRadius: '24px',
+                                        background: '#F8FAFC',
+                                        border: '1px solid currentColor',
+                                        borderColor: fb.analysis.sentiment === 'Positive' ? '#86efac' : fb.analysis.sentiment === 'Negative' ? '#fca5a5' : '#e2e8f0',
+                                        position: 'relative'
+                                    }}
+                                >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+                                        <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: '#4F46E5', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 'bold' }}>
+                                            {fb.email?.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div>
+                                            <h4 style={{ margin: 0, fontSize: '0.95rem', fontWeight: '600' }}>{fb.email || 'Anonymous'}</h4>
+                                            <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>{new Date(fb.timestamp).toLocaleDateString()}</p>
+                                        </div>
+                                    </div>
+                                    <p style={{ fontStyle: 'italic', color: '#1E293B', lineHeight: '1.6', marginBottom: '1.5rem' }}>
+                                        "{fb.text.length > 150 ? fb.text.substring(0, 150) + '...' : fb.text}"
+                                    </p>
+                                    <div style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        padding: '0.4rem 0.8rem',
+                                        borderRadius: '50px',
+                                        background: fb.analysis.sentiment === 'Positive' ? '#dcfce7' : fb.analysis.sentiment === 'Negative' ? '#fee2e2' : '#f1f5f9',
+                                        color: fb.analysis.sentiment === 'Positive' ? '#15803d' : fb.analysis.sentiment === 'Negative' ? '#b91c1c' : '#475569',
+                                        fontSize: '0.75rem',
+                                        fontWeight: 'bold'
+                                    }}>
+                                        <Sparkles size={12} /> {fb.analysis.sentiment} Vibe
+                                    </div>
+                                </motion.div>
+                            ))
+                        ) : (
+                            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '3rem', background: '#F8FAFC', borderRadius: '24px', border: '2px dashed #E2E8F0' }}>
+                                <Globe size={48} color="#94A3B8" style={{ marginBottom: '1rem' }} />
+                                <p style={{ color: '#94A3B8' }}>Be the first to share your story!</p>
+                                <button onClick={() => navigate('/feedback')} className="btn btn-secondary btn-sm" style={{ marginTop: '1rem' }}>Write a Review</button>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </section>
+
+            {/* Footer */}
+            <footer className="section" style={{ padding: '4rem 0 2rem 0', background: 'linear-gradient(to bottom, #F8FAFC, white)', borderTop: '1px solid #E2E8F0' }}>
+                <div className="container">
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '3rem', marginBottom: '3rem' }}>
+                        {/* Brand Section */}
+                        <div>
+                            <div className="flex items-center gap-2" style={{ marginBottom: '1rem' }}>
+                                <Plane size={28} color="#4F46E5" />
+                                <span style={{ fontWeight: 800, fontSize: '1.3rem' }}>{t('appName')}</span>
+                            </div>
+                            <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.6' }}>
+                                AI-powered travel planning that creates personalized itineraries in seconds. Explore the world smarter.
+                            </p>
+                        </div>
+
+                        {/* Quick Links */}
+                        <div>
+                            <h4 style={{ marginBottom: '1rem', fontSize: '0.95rem', fontWeight: '700', color: '#1e293b' }}>Quick Links</h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+                                <button onClick={() => navigate('/plan')} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.9rem', textAlign: 'left', padding: 0 }}>Start Planning</button>
+                                <button onClick={() => navigate('/discover')} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.9rem', textAlign: 'left', padding: 0 }}>Discover Destinations</button>
+                                <button onClick={() => navigate('/saved-itineraries')} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.9rem', textAlign: 'left', padding: 0 }}>Saved Itineraries</button>
+                                <button onClick={() => navigate('/feedback')} style={{ background: 'none', border: 'none', color: '#64748b', cursor: 'pointer', fontSize: '0.9rem', textAlign: 'left', padding: 0 }}>Share Feedback</button>
+                            </div>
+                        </div>
+
+                        {/* Features */}
+                        <div>
+                            <h4 style={{ marginBottom: '1rem', fontSize: '0.95rem', fontWeight: '700', color: '#1e293b' }}>Features</h4>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+                                <span style={{ color: '#64748b', fontSize: '0.9rem' }}>AI Itineraries</span>
+                                <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Smart Budget Tracking</span>
+                                <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Hidden Gems Discovery</span>
+                                <span style={{ color: '#64748b', fontSize: '0.9rem' }}>Real-time Weather</span>
+                            </div>
+                        </div>
+
+                        {/* Connect */}
+                        <div>
+                            <h4 style={{ marginBottom: '1rem', fontSize: '0.95rem', fontWeight: '700', color: '#1e293b' }}>Connect</h4>
+                            <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+                                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
+                                    <Globe size={18} color="#64748b" />
+                                </div>
+                                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
+                                    <Heart size={18} color="#64748b" />
+                                </div>
+                                <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: '#F1F5F9', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.2s' }}>
+                                    <Users size={18} color="#64748b" />
+                                </div>
+                            </div>
+                            <p style={{ color: '#64748b', fontSize: '0.85rem' }}>
+                                Join our community of travelers
+                            </p>
+                        </div>
+                    </div>
+
+                    {/* Bottom Bar */}
+                    <div style={{ paddingTop: '2rem', borderTop: '1px solid #E2E8F0', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+                        <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0 }}>
+                            &copy; {new Date().getFullYear()} {t('appName')}. Built with AI & <Heart size={12} style={{ display: 'inline', color: '#EF4444', marginBottom: '-2px' }} fill="currentColor" />.
+                        </p>
+                        <div style={{ display: 'flex', gap: '1.5rem' }}>
+                            <span style={{ fontSize: '0.85rem', color: '#94a3b8', cursor: 'pointer' }}>Privacy</span>
+                            <span style={{ fontSize: '0.85rem', color: '#94a3b8', cursor: 'pointer' }}>Terms</span>
+                            <span style={{ fontSize: '0.85rem', color: '#94a3b8', cursor: 'pointer' }}>Contact</span>
+                        </div>
+                    </div>
                 </div>
             </footer>
         </div>

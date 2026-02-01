@@ -28,7 +28,20 @@ const HiddenGemsPage = () => {
     return (
         <div style={{ minHeight: '100vh', background: 'var(--bg-main)', color: 'var(--text-main)', padding: '2rem' }}>
             {/* Header */}
-            <header style={{ maxWidth: '1200px', margin: '0 auto 3rem auto', display: 'flex', alignItems: 'center', gap: '2rem' }}>
+            <header style={{
+                maxWidth: '1200px',
+                margin: '0 auto 3rem auto',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '2rem',
+                background: 'rgba(255, 255, 255, 0.7)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                padding: '2rem',
+                borderRadius: '24px',
+                border: '1px solid rgba(255, 255, 255, 0.3)',
+                boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+            }}>
                 <button
                     onClick={() => navigate(-1)}
                     style={{ background: 'white', border: '1px solid var(--border)', borderRadius: '50%', p: '0.8rem', cursor: 'pointer', display: 'flex' }}
@@ -51,24 +64,35 @@ const HiddenGemsPage = () => {
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem' }}>
                         {hiddenGems.map((gem, index) => (
                             <motion.div
-                                key={index}
+                                key={gem.id || index}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: index * 0.1 }}
                                 className="card"
                                 style={{ overflow: 'hidden', padding: 0, borderRadius: '24px', border: 'none', boxShadow: '0 15px 35px rgba(0,0,0,0.08)' }}
                             >
-                                <div style={{ height: '220px', position: 'relative' }}>
-                                    <img
-                                        src={gem.imageUrl || 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=800&q=80'}
-                                        alt={gem.title}
-                                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                    />
-                                    <div style={{ position: 'absolute', top: '15px', right: '15px', background: 'rgba(255,255,255,0.9)', padding: '6px 12px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 'bold', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <div style={{
+                                    padding: '1.5rem',
+                                    position: 'relative',
+                                    paddingTop: '3rem' // Make space for the badge
+                                }}>
+                                    <div style={{
+                                        position: 'absolute',
+                                        top: '15px',
+                                        right: '15px',
+                                        background: 'var(--primary-light)',
+                                        padding: '6px 12px',
+                                        borderRadius: '12px',
+                                        fontSize: '0.8rem',
+                                        fontWeight: 'bold',
+                                        color: 'var(--primary)',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        zIndex: 1
+                                    }}>
                                         <Sparkles size={14} /> HIDDEN GEM
                                     </div>
-                                </div>
-                                <div style={{ padding: '1.5rem' }}>
                                     <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--primary)' }}>{gem.title}</h3>
                                     <p style={{ fontSize: '0.95rem', color: 'var(--text-main)', marginBottom: '1.2rem', lineHeight: '1.6' }}>
                                         {gem.description}

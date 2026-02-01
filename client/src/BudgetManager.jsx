@@ -1,10 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { DollarSign, User, Calendar, AlertTriangle, Users, RotateCcw } from 'lucide-react';
 import { useLanguage } from './LanguageContext';
+import { useCurrency } from './CurrencyContext';
 
 const BudgetManager = ({ details }) => {
     const { t } = useLanguage();
+    const { formatPrice, currencySymbol } = useCurrency();
     if (!details) return null;
 
     const { totalEstimated, travelers, dayWise, currency } = details;
@@ -124,7 +125,7 @@ const BudgetManager = ({ details }) => {
                         className="stat-value"
                         style={{ display: 'block', fontSize: '1.25rem', color: 'var(--text-main)' }}
                     >
-                        {currency} ${Math.round(budgetStats.total).toLocaleString()}
+                        {formatPrice(budgetStats.total)}
                     </motion.strong>
                 </div>
                 <div className="stat-card" style={{ background: '#F8FAFC', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border-light)' }}>
@@ -136,7 +137,7 @@ const BudgetManager = ({ details }) => {
                         className="stat-value"
                         style={{ display: 'block', fontSize: '1.25rem', color: 'var(--success)' }}
                     >
-                        {currency} ${Math.round(budgetStats.split).toLocaleString()}
+                        {formatPrice(budgetStats.split)}
                     </motion.strong>
                 </div>
             </div>
@@ -157,9 +158,9 @@ const BudgetManager = ({ details }) => {
                                         animate={{ opacity: 1 }}
                                         style={{ fontSize: '0.85rem', fontWeight: 'bold', display: 'block' }}
                                     >
-                                        ${Math.round(day.total).toLocaleString()}
+                                        {formatPrice(day.total)}
                                     </motion.span>
-                                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Target: ${Math.round(day.target).toLocaleString()}</span>
+                                    <span style={{ fontSize: '0.65rem', color: 'var(--text-muted)' }}>Target: {formatPrice(day.target)}</span>
                                 </div>
                             </div>
                             <div className="budget-bar-bg" style={{ height: '8px', background: '#E2E8F0', borderRadius: '10px', overflow: 'hidden', position: 'relative' }}>
